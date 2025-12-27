@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DiceJack Legends</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-color: #e0e0e0;
+            
+            /* Class Colors */
+            --knight-color: #1E88E5;
+            --rogue-color: #E53935;
+            --mage-color: #8E24AA;
+            --brute-color: #43A047;
+            --vampire-color: #607D8B;
+            --warrior-color: #FF8A65;
+            --gambler-color: #D81B60;
+            --outlaw-color: #283593; /* Navy Blue */
+            --ritualist-color: #5D4037; /* Dark Brown */
+            --ghoul-color: #009688; /* Teal */
+            --boss-color: #FFD700;
+            
+            --dice-dot: #fff;
+            --dice-dot-vampire: #D32F2F;
+            --dice-dot-warrior: #000;
+            --dice-dot-gambler: #FFEB3B;
+            --dice-dot-ritualist: #D32F2F; /* Red Pips */
+            --dice-dot-boss: #000;
+            
+            --hp-bg: #222;
+            --hp-fill: #388E3C;
+            --shield-fill: #00ACC1;
+        }
+
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Cinzel', serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- TITLE SCREEN --- */
+        #title-screen { 
+            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #141e30);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            z-index: 200; 
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .title-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 50px; }
+        .title-line { font-size: 5rem; font-weight: 900; line-height: 0.9; text-shadow: 0 0 20px rgba(255,255,255,0.1); letter-spacing: 5px; }
+        .title-line:nth-child(2) { color: var(--rogue-color); }
+        .menu-btn { background: transparent; border: 2px solid #aaa; color: #fff; padding: 15px 40px; font-size: 1.2rem; font-family: 'Cinzel', serif; margin: 10px; width: 250px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 2px; }
+        .menu-btn:hover { background: #fff; color: #000; border-color: #fff; box-shadow: 0 0 15px #fff; }
+
+        /* --- TUTORIAL --- */
+        #tutorial-screen { background: #080808; z-index: 210; align-items: flex-start; overflow-y: auto; }
+        .tutorial-content { max-width: 500px; padding: 20px; text-align: left; }
+        .tut-header { font-size: 2rem; color: var(--boss-color); margin-bottom: 20px; text-align: center; }
+        .tut-section { margin-bottom: 25px; }
+        .tut-title { font-size: 1.1rem; color: #fff; margin-bottom: 5px; border-bottom: 1px solid #444; padding-bottom: 2px; }
+        .tut-text { font-family: 'Lato', sans-serif; font-size: 0.95rem; color: #aaa; line-height: 1.5; }
+        .back-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; border: 1px solid #555; width: auto; padding: 10px 30px; }
+
+        /* --- MODAL --- */
+        #skill-modal { background: rgba(0,0,0,0.95); z-index: 300; }
+        .modal-box { background: #111; border: 1px solid #444; padding: 30px; border-radius: 15px; max-width: 350px; width: 90%; text-align: center; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+        .modal-close { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; color: #666; cursor: pointer; font-family: sans-serif; }
+        .modal-title { font-size: 1.5rem; margin-bottom: 15px; color: #fff; }
+        .modal-desc { font-family: 'Lato', sans-serif; color: #ccc; line-height: 1.6; font-size: 1rem; }
+        .modal-status { margin-top: 15px; font-weight: bold; color: #FFD700; font-size: 0.9rem; }
+
+        /* --- LAYOUT --- */
+        .section { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; padding: 10px; transition: background 0.5s ease; }
+        .opponent-zone { position: relative; }
+        .top-hud { position: absolute; top: 15px; left: 0; right: 0; height: 30px; display: flex; justify-content: center; align-items: center; z-index: 10; pointer-events: none; }
+        .mini-timeline { display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.7); padding: 8px 15px; border-radius: 20px; border: 1px solid #444; }
+        .mini-node { width: 8px; height: 8px; border-radius: 50%; background: #444; transition: transform 0.3s, background 0.3s; }
+        .mini-node.active { transform: scale(1.4); background: #fff; box-shadow: 0 0 5px #fff; }
+        .mini-line { width: 12px; height: 2px; background: #444; }
+        .mini-line.active { background: #fff; }
+
+        .center-hud { position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); z-index: 20; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+        #turn-total { font-size: 6rem; font-weight: 900; margin: 0; line-height: 1; text-shadow: 0 4px 10px rgba(0,0,0,0.9); transition: color 0.3s; position: relative; z-index: 2; }
+        #status-text { position: absolute; left: 50%; transform: translateX(-50%); width: 300px; color: #ccc; font-size: 1.1rem; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.7); padding: 6px 16px; border-radius: 20px; border: 1px solid #444; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease-in-out; z-index: 3; }
+        #bust-limit-indicator { position: absolute; left: 50%; transform: translateX(-50%); font-family: 'Lato', sans-serif; font-size: 0.9rem; color: #aaa; background: rgba(0,0,0,0.6); padding: 4px 12px; border-radius: 12px; border: 1px solid #333; transition: all 0.3s ease-in-out; white-space: nowrap; z-index: 1; }
+
+        .p-turn #status-text { top: -45px; } .p-turn #bust-limit-indicator { bottom: -35px; opacity: 1; }
+        .ai-turn #status-text { top: 90px; } .ai-turn #bust-limit-indicator { bottom: -35px; opacity: 0; }
+        .neutral #status-text { top: -45px; } .neutral #bust-limit-indicator { bottom: -35px; opacity: 0; }
+
+        .stats-container { width: 100%; max-width: 340px; margin-bottom: 5px; position: relative; }
+        .stats-label { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; text-shadow: 1px 1px 2px black; letter-spacing: 1px; }
+        .dice-counter { font-family: 'Lato', sans-serif; font-size: 0.85rem; background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 12px; margin-top: 6px; display: inline-block; width: 100%; text-align: center; color: #aaa; letter-spacing: 1px; border: 1px solid #333; }
+        .bar-wrapper { width: 100%; height: 22px; background: var(--hp-bg); border-radius: 4px; position: relative; overflow: hidden; border: 1px solid #444; }
+        .hp-bar, .shield-bar { height: 100%; position: absolute; top: 0; left: 0; transition: width 0.3s ease; }
+        .hp-bar { background-color: var(--hp-fill); z-index: 1; }
+        .shield-bar { background-color: var(--shield-fill); z-index: 2; opacity: 0.9; }
+
+        .battle-info-icon { width: 20px; height: 20px; border: 1px solid #777; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #aaa; cursor: pointer; margin-left: 8px; font-family: 'Lato', sans-serif; }
+        .battle-info-icon:active { background: #fff; color: #000; }
+
+        .dice-area { display: flex; gap: 8px; height: 90px; align-items: center; justify-content: center; margin: 5px 0; perspective: 1000px; }
+        .die { width: 50px; height: 50px; border-radius: 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 5px 10px rgba(0,0,0,0.5); padding: 4px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 2px; background: #2a2a2a; border: 1px solid rgba(255,255,255,0.1); }
+        .dot { width: 10px; height: 10px; background-color: var(--dice-dot); border-radius: 50%; margin: auto; opacity: 0; box-shadow: inset 1px 1px 2px rgba(0,0,0,0.8); }
+        
+        .die.knight { background-color: var(--knight-color); }
+        .die.rogue { background-color: var(--rogue-color); }
+        .die.mage { background-color: var(--mage-color); }
+        .die.brute { background-color: var(--brute-color); }
+        .die.warrior { background-color: var(--warrior-color); .dot { background-color: var(--dice-dot-warrior); } }
+        .die.gambler { background-color: var(--gambler-color); .dot { background-color: var(--dice-dot-gambler); } }
+        .die.vampire { background-color: var(--vampire-color); .dot { background-color: var(--dice-dot-vampire); } }
+        .die.outlaw { background-color: var(--outlaw-color); }
+        .die.ritualist { background-color: var(--ritualist-color); .dot { background-color: var(--dice-dot-ritualist); } }
+        .die.ghoul { background-color: var(--ghoul-color); }
+        .die.boss { background-color: var(--boss-color); .dot { background-color: var(--dice-dot-boss); } }
+
+        .die[data-val="1"] .dot:nth-child(5) { opacity: 1; }
+        .die[data-val="2"] .dot:nth-child(1), .die[data-val="2"] .dot:nth-child(9) { opacity: 1; }
+        .die[data-val="3"] .dot:nth-child(1), .die[data-val="3"] .dot:nth-child(5), .die[data-val="3"] .dot:nth-child(9) { opacity: 1; }
+        .die[data-val="4"] .dot:nth-child(1), .die[data-val="4"] .dot:nth-child(3), .die[data-val="4"] .dot:nth-child(7), .die[data-val="4"] .dot:nth-child(9) { opacity: 1; }
+        .die[data-val="5"] .dot:nth-child(1), .die[data-val="5"] .dot:nth-child(3), .die[data-val="5"] .dot:nth-child(5), .die[data-val="5"] .dot:nth-child(7), .die[data-val="5"] .dot:nth-child(9) { opacity: 1; }
+        .die[data-val="6"] .dot:nth-child(1), .die[data-val="6"] .dot:nth-child(3), .die[data-val="6"] .dot:nth-child(4), .die[data-val="6"] .dot:nth-child(6), .die[data-val="6"] .dot:nth-child(7), .die[data-val="6"] .dot:nth-child(9) { opacity: 1; }
+        .die.landed { animation: landPop 0.3s ease-out forwards; }
+        @keyframes landPop { 0% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+        .controls { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; width: 100%; max-width: 320px; margin-top: 15px; position: relative; }
+        button { border: none; border-radius: 8px; font-family: 'Cinzel', serif; font-size: 1.2rem; font-weight: 700; cursor: pointer; text-transform: uppercase; padding: 15px; color: white; transition: 0.2s; position: relative; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        button:active:not(:disabled) { transform: scale(0.96); }
+        button:disabled { opacity: 0.4; filter: grayscale(100%); cursor: not-allowed; }
+        #btn-roll { background: #333; grid-column: 1; }
+        #btn-attack { background: #bf360c; grid-column: 2; }
+        #btn-skill { grid-column: 1 / span 2; background: linear-gradient(90deg, #333, #555); border: 1px solid rgba(255,255,255,0.3); font-size: 1.1rem; }
+        .skill-info-absolute { position: absolute; bottom: 15px; right: -30px; width: 24px; height: 24px; border: 1px solid #777; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: #aaa; cursor: pointer; font-family: 'Lato', sans-serif; }
+
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; }
+        .hidden { display: none !important; }
+
+        #class-screen { justify-content: center; padding: 0; }
+        .carousel-title { margin-bottom: 20px; font-size: 1.8rem; text-shadow: 0 4px 10px #000; letter-spacing: 2px; }
+        .carousel-container { width: 100%; height: 520px; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 20px; padding: 0 40px; align-items: center; -webkit-overflow-scrolling: touch; }
+        .carousel-container::-webkit-scrollbar { display: none; }
+        .class-card { flex: 0 0 300px; height: 480px; scroll-snap-align: center; background: linear-gradient(145deg, #1a1a1a, #0d0d0d); border: 1px solid #444; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 30px; transition: transform 0.3s, box-shadow 0.3s; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .class-card:hover { transform: translateY(-5px); border-color: #888; }
+        .class-icon-lg { width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 4px solid rgba(255,255,255,0.1); fill: #fff; margin-bottom: 10px; }
+        
+        .k-icon { background: var(--knight-color); box-shadow: 0 0 25px var(--knight-color); }
+        .r-icon { background: var(--rogue-color); box-shadow: 0 0 25px var(--rogue-color); }
+        .m-icon { background: var(--mage-color); box-shadow: 0 0 25px var(--mage-color); }
+        .b-icon { background: var(--brute-color); box-shadow: 0 0 25px var(--brute-color); }
+        .v-icon { background: var(--vampire-color); box-shadow: 0 0 25px var(--vampire-color); }
+        .w-icon { background: var(--warrior-color); box-shadow: 0 0 25px var(--warrior-color); }
+        .g-icon { background: var(--gambler-color); box-shadow: 0 0 25px var(--gambler-color); }
+        .o-icon { background: var(--outlaw-color); box-shadow: 0 0 25px var(--outlaw-color); }
+        .rt-icon { background: var(--ritualist-color); box-shadow: 0 0 25px var(--ritualist-color); }
+        .gh-icon { background: var(--ghoul-color); box-shadow: 0 0 25px var(--ghoul-color); }
+
+        .class-icon-lg svg { width: 55px; height: 55px; }
+        .class-content { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .class-title { font-size: 2rem; margin: 10px 0; font-weight: 900; letter-spacing: 2px; }
+        .class-desc { font-family: 'Lato', sans-serif; color: #aaa; margin: 15px 0; font-size: 0.95rem; line-height: 1.5; text-align: center; min-height: 60px; }
+        .stat-row { display: flex; gap: 8px; margin-bottom: 15px; justify-content: center; width: 100%; }
+        .stat-badge { background: #000; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; border: 1px solid #333; color: #ccc; font-family: 'Lato', sans-serif; }
+        .btn-select { width: 100%; padding: 14px; font-size: 1.1rem; background: #fff; color: #000; border: none; margin-top: auto; }
+
+        #campaign-screen { background: #050505; cursor: pointer; }
+        .campaign-wrapper { width: 100%; max-width: 350px; height: 80vh; display: flex; flex-direction: column-reverse; position: relative; justify-content: space-between; padding: 40px 0; }
+        .c-row { display: flex; justify-content: center; align-items: center; width: 100%; position: relative; z-index: 2; }
+        .c-node { width: 24px; height: 24px; border-radius: 50%; background: #222; border: 2px solid #555; transition: all 0.5s; position: relative; z-index: 5; }
+        .c-node.boss { width: 40px; height: 40px; border: 3px solid #FFD700; background: #222; }
+        .c-label { position: absolute; font-size: 1.1rem; font-weight: bold; color: #555; text-transform: uppercase; white-space: nowrap; transition: all 0.5s; }
+        .c-row:nth-child(odd) .c-label { left: 55%; text-align: left; }
+        .c-row:nth-child(even) .c-label { right: 55%; text-align: right; }
+        .c-label.boss-label { top: -35px; left: 50%; transform: translateX(-50%); color: #FFD700; font-size: 1.5rem; text-shadow: 0 0 10px #FFD700; width: 100%; text-align: center !important; right: auto !important; }
+        .c-node.active { transform: scale(1.2); border-color: #fff; box-shadow: 0 0 15px white; }
+        .c-label.active { color: #fff; text-shadow: 0 0 8px currentColor; }
+        .c-node.defeated { opacity: 0.6; filter: grayscale(0.5); }
+        .c-line-container { position: absolute; top: 55px; bottom: 55px; left: 50%; width: 4px; background: #222; transform: translateX(-50%); z-index: 1; }
+        .c-line-fill { position: absolute; bottom: 0; left: 0; width: 100%; background: #fff; height: 0%; box-shadow: 0 0 10px currentColor; transition: height 2.3s ease-in-out; }
+
+        .float-overlay { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+        .float-msg { position: absolute; width: 100%; text-align: center; top: 30%; font-weight: 900; font-size: 1.4rem; animation: floatAndFade 1.2s ease-out forwards; text-shadow: 0 2px 4px #000; z-index: 50; }
+        @keyframes floatAndFade { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-50px); opacity: 0; } }
+        .debug-opt { margin-top: 20px; font-size: 0.8rem; color: #444; font-family: sans-serif; }
+    </style>
+</head>
+<body>
+
+    <div id="title-screen" class="overlay">
+        <div class="title-container">
+            <div class="title-line">DICE</div>
+            <div class="title-line">JACK</div>
+        </div>
+        <button class="menu-btn" onclick="showClassSelection()">Start Game</button>
+        <button class="menu-btn" onclick="showTutorial()">How to Play</button>
+    </div>
+
+    <div id="tutorial-screen" class="overlay hidden">
+        <div class="tutorial-content">
+            <h2 class="tut-header">HOW TO PLAY</h2>
+            <div class="tut-section"><div class="tut-title">OBJECTIVE</div><div class="tut-text">Defeat 5 Opponents and the Boss by reducing their HP to 0. Survive the dungeon gauntlet.</div></div>
+            <div class="tut-section"><div class="tut-title">THE TURN</div><div class="tut-text">1. <b>Roll Dice:</b> Add dice to increase your score.<br>2. <b>Attack:</b> Deal damage equal to your score.<br>3. <b>Bust:</b> If your score exceeds your class limit, your turn ends with 0 damage.</div></div>
+            <div class="tut-section"><div class="tut-title">SPECIAL RULES</div><div class="tut-text">- <b>Doubles Heal:</b> Rolling the same number twice in a row heals 10 HP.<br>- <b>Skills:</b> Each class has a unique skill. Use them wisely!</div></div>
+            <div style="height: 60px;"></div>
+        </div>
+        <button class="menu-btn back-btn" onclick="hideTutorial()">BACK</button>
+    </div>
+
+    <div id="skill-modal" class="overlay hidden">
+        <div class="modal-box">
+            <div class="modal-close" onclick="closeSkillInfo()">✕</div>
+            <h3 class="modal-title" id="info-title">SKILL NAME</h3>
+            <p class="modal-desc" id="info-desc">Description goes here.</p>
+            <p class="modal-status" id="info-status"></p>
+        </div>
+    </div>
+
+    <div class="top-hud"><div class="mini-timeline" id="mini-timeline"></div></div>
+
+    <div class="section opponent-zone" id="ai-bg">
+        <div class="float-overlay" id="ai-floats"></div>
+        <div class="stats-container">
+            <div class="stats-label">
+                <div style="display:flex; align-items:center;">
+                    <span id="ai-name">OPPONENT</span>
+                    <div class="battle-info-icon" onclick="showBattleInfo('ai')">i</div>
+                </div>
+                <span id="ai-hp-text">30/30</span>
+            </div>
+            <div class="bar-wrapper"><div id="ai-hp-bar" class="hp-bar" style="width: 100%;"></div><div id="ai-shield-bar" class="shield-bar" style="width: 0%;"></div></div>
+            <div class="dice-counter" id="ai-dice-counter">Dice: 0/3</div>
+        </div>
+        <div class="dice-area" id="ai-dice-container"></div>
+    </div>
+
+    <div class="center-hud neutral" id="main-hud">
+        <div id="status-text">Select Class</div>
+        <div id="turn-total">--</div>
+        <div id="bust-limit-indicator">Max: 10</div>
+    </div>
+
+    <div class="section player-zone" id="player-bg">
+        <div class="dice-area" id="player-dice-container"></div>
+        <div class="stats-container">
+            <div class="float-overlay" id="player-floats"></div>
+            <div class="stats-label"><span id="player-name">YOU</span><span id="player-hp-text">30/30</span></div>
+            <div class="bar-wrapper"><div id="player-hp-bar" class="hp-bar" style="width: 100%;"></div><div id="player-shield-bar" class="shield-bar" style="width: 0%;"></div></div>
+            <div class="dice-counter" id="player-dice-counter">Dice: 0/3</div>
+        </div>
+        <div class="controls">
+            <button id="btn-roll" onclick="playerAction('roll')">Roll</button>
+            <button id="btn-attack" onclick="playerAction('attack')">Attack</button>
+            <button id="btn-skill" onclick="playerAction('skill')">Skill</button>
+            <div class="skill-info-absolute" onclick="showBattleInfo('player')">i</div>
+        </div>
+    </div>
+
+    <div id="campaign-screen" class="overlay hidden" onclick="skipCampaign()">
+        <h2 style="color: #fff; margin-bottom: 20px; text-shadow: 0 0 10px #fff;">YOUR JOURNEY</h2>
+        <div class="campaign-wrapper" id="campaign-wrapper"><div class="c-line-container"><div class="c-line-fill" id="c-line-fill"></div></div></div>
+        <p style="color: #666; margin-top: 20px; font-size: 0.8rem; font-family: sans-serif;">TAP TO CONTINUE</p>
+    </div>
+
+    <div id="class-screen" class="overlay hidden">
+        <h2 class="carousel-title">CHOOSE YOUR HERO</h2>
+        <p style="color: #777; margin-bottom: 20px; font-size: 0.9rem;">Swipe to view</p>
+        <div class="carousel-container" id="class-carousel">
+            
+            <div class="class-card">
+                <div class="class-content">
+                    <div class="class-icon-lg k-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg></div>
+                    <div class="class-title" style="color: var(--knight-color)">KNIGHT</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 3</span><span class="stat-badge">Bust: 10</span></div>
+                    <div class="class-desc">Adds +5 Armor. Armor absorbs damage before HP. Armor persists until broken.</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('knight')">SELECT</button>
+            </div>
+
+            <div class="class-card">
+                <div class="class-content">
+                    <div class="class-icon-lg w-icon"><svg viewBox="0 0 24 24"><path d="M6 5 L12 11 L18 5 M6 13 L12 19 L18 13" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="class-title" style="color: var(--warrior-color)">WARRIOR</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 3</span><span class="stat-badge">Bust: 12</span></div>
+                    <div class="class-desc">Your attack reduces the Enemy's Bust Limit for their next turn (1 limit per 3 damage, Max -4).</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('warrior')">SELECT</button>
+            </div>
+
+            <div class="class-card">
+                <div class="class-content">
+                    <div class="class-icon-lg g-icon"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div>
+                    <div class="class-title" style="color: var(--gambler-color)">GAMBLER</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 2</span><span class="stat-badge">Bust: 12</span></div>
+                    <div class="class-desc">Instantly adds a '6' to your total score without rolling. Can trigger Doubles Heal.</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('gambler')">SELECT</button>
+            </div>
+
+            <div class="class-card">
+                <div class="class-content">
+                    <div class="class-icon-lg r-icon"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div>
+                    <div class="class-title" style="color: var(--rogue-color)">ROGUE</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 2</span><span class="stat-badge">Bust: 8</span></div>
+                    <div class="class-desc">Your next attack deals Double (2x) Damage. Effect lasts until you attack.</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('rogue')">SELECT</button>
+            </div>
+
+            <div class="class-card">
+                <div class="class-content">
+                    <div class="class-icon-lg m-icon"><svg viewBox="0 0 24 24"><path d="M2 17h20v2H2zM12 2L3 15h18L12 2zm0 3.8L17.8 13H6.2L12 5.8z"/></svg></div>
+                    <div class="class-title" style="color: var(--mage-color)">MAGE</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 4</span><span class="stat-badge">Bust: 12</span></div>
+                    <div class="class-desc">If you Bust on your next roll, the die is removed, the Bust is ignored, and the turn continues.</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('mage')">SELECT</button>
+            </div>
+
+            <div class="class-card">
+                <div class="class-content">
+                    <div class="class-icon-lg b-icon"><svg viewBox="0 0 24 24"><path d="M12 21l-10-18h20z"/></svg></div>
+                    <div class="class-title" style="color: var(--brute-color)">BRUTE</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 5</span><span class="stat-badge">Bust: 10</span></div>
+                    <div class="class-desc">Increases Bust Limit to 16 for this turn. Warning: Busting while Enraged deals 5 damage to yourself.</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('brute')">SELECT</button>
+            </div>
+
+            <div class="class-card">
+                <div class="class-content">
+                    <div class="class-icon-lg v-icon"><svg viewBox="0 0 24 24"><path d="M12 2C7.58 6.57 4 10.5 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8c0-3.5-3.58-7.43-8-12z"/></svg></div>
+                    <div class="class-title" style="color: var(--vampire-color)">VAMPIRE</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 3</span><span class="stat-badge">Bust: 10</span></div>
+                    <div class="class-desc">For this turn, 50% of damage dealt is restored as Health (Max 5HP).</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('vampire')">SELECT</button>
+            </div>
+
+            <div class="class-card">
+                <div class="class-content">
+                    <div class="class-icon-lg o-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-4-8c0 2.21 1.79 4 4 4s4-1.79 4-4-1.79-4-4-4-4 1.79-4 4zm4 2c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg></div>
+                    <div class="class-title" style="color: var(--outlaw-color)">OUTLAW</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 6</span><span class="stat-badge">Bust: 8</span></div>
+                    <div class="class-desc">Raises Bust Limit to 16 and auto-rolls all dice. Penalty: -1 Max Dice for battle if you bust.</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('outlaw')">SELECT</button>
+            </div>
+
+            <div class="class-card">
+                <div class="class-content">
+                    <div class="class-icon-lg rt-icon"><svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></div>
+                    <div class="class-title" style="color: var(--ritualist-color)">RITUALIST</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 3</span><span class="stat-badge">Bust: 10</span></div>
+                    <div class="class-desc">Sacrifice 12 HP to gain +1 Max Dice and +4 Bust Limit for the rest of battle (2 Charges).</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('ritualist')">SELECT</button>
+            </div>
+
+            <div class="class-card">
+                <div class="class-content">
+                    <div class="class-icon-lg gh-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.41 2.87 8.19 6.84 9.5.55.18.81.75.64 1.29-.18.54-.76.84-1.3.65C3.71 21.73.5 17.26.5 12 .5 5.65 5.65.5 12 .5s11.5 5.15 11.5 11.5c0 5.26-3.21 9.73-7.68 11.44-.54.19-1.12-.11-1.3-.65-.17-.54.09-1.11.64-1.29 3.97-1.31 6.84-5.09 6.84-9.5 0-5.52-4.48-10-10-10z M9 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
+                    <div class="class-title" style="color: var(--ghoul-color)">GHOUL</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 3</span><span class="stat-badge">Bust: 10</span></div>
+                    <div class="class-desc">Haunts enemy (-1 Max Dice). Effect lasts until Ghoul busts. Cooldown starts after effect ends.</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('ghoul')">SELECT</button>
+            </div>
+
+        </div>
+        <label class="debug-opt"><input type="checkbox" id="debug-boss"> [DEBUG] Skip to Boss</label>
+    </div>
+
+    <div id="end-screen" class="overlay hidden">
+        <h1 id="end-title" style="font-size: 3rem; margin-bottom: 10px;">GAME OVER</h1>
+        <p id="end-summ" style="color:#aaa; margin-bottom: 30px; font-family: sans-serif;"></p>
+        <div class="end-btn-group" id="end-buttons"></div>
+    </div>
+
+    <script>
+        // --- Game Config ---
+        const CLASSES = {
+            knight: { name: 'Knight', color: 'knight', maxDice: 3, bust: 10, maxHP: 30, skillName: 'Shield Up', skillCd: 3, fullDesc: "Adds +5 Armor. Armor absorbs damage before HP. Armor persists until broken." },
+            rogue: { name: 'Rogue', color: 'rogue', maxDice: 2, bust: 8, maxHP: 30, skillName: 'Assassinate', skillCd: 2, fullDesc: "Your next attack deals Double (2x) Damage. Effect lasts until you attack." },
+            mage: { name: 'Mage', color: 'mage', maxDice: 4, bust: 12, maxHP: 30, skillName: 'Rewind', skillCd: 3, fullDesc: "If you Bust on your next roll, the die is removed, the Bust is ignored, and the turn continues." },
+            brute: { name: 'Brute', color: 'brute', maxDice: 5, bust: 10, maxHP: 30, skillName: 'Enrage', skillCd: 4, fullDesc: "Increases Bust Limit to 16 for this turn. Warning: Busting while Enraged deals 5 damage to yourself." },
+            vampire: { name: 'Vampire', color: 'vampire', maxDice: 3, bust: 10, maxHP: 30, skillName: 'Absorb', skillCd: 3, fullDesc: "For this turn, 50% of damage dealt is restored as Health (Max 5HP)." },
+            warrior: { name: 'Warrior', color: 'warrior', maxDice: 3, bust: 12, maxHP: 30, skillName: 'Intimidation', skillCd: 3, fullDesc: "Your attack reduces the Enemy's Bust Limit for their next turn (1 limit per 3 damage, Max -4)." },
+            gambler: { name: 'Gambler', color: 'gambler', maxDice: 2, bust: 12, maxHP: 30, skillName: 'Lucky Dice', skillCd: 4, fullDesc: "Instantly adds a '6' to your total score without rolling. Can trigger Doubles Heal." },
+            outlaw: { name: 'Outlaw', color: 'outlaw', maxDice: 6, bust: 8, maxHP: 30, skillName: 'Six Shooter', skillCd: 2, fullDesc: "Raises Bust Limit to 16 and auto-rolls all remaining dice. Penalty: -1 Max Dice for battle if you bust." },
+            ritualist: { name: 'Ritualist', color: 'ritualist', maxDice: 3, bust: 10, maxHP: 30, skillName: 'Blood Oath', charges: 2, fullDesc: "Sacrifice 12 HP to gain +1 Max Dice and +4 Bust Limit for the rest of battle." },
+            ghoul: { name: 'Ghoul', color: 'ghoul', maxDice: 3, bust: 10, maxHP: 30, skillName: 'Haunt', skillCd: 3, fullDesc: "Haunts enemy (-1 Max Dice). Effect lasts until Ghoul busts. Cooldown starts after effect ends." },
+            boss: { name: 'THE BOSS', color: 'boss', maxDice: 3, bust: 12, maxHP: 45, skillName: 'Intimidate', skillCd: 99, fullDesc: "Passive: Intimidating Presence deals 5 damage if you bust." }
+        };
+        const STATE = { START: 0, ROLL_OFF: 1, PLAYER_TURN: 2, AI_TURN: 3, GAME_OVER: 4 };
+        
+        let currentState = STATE.START;
+        let campaignOrder = [];
+        let currentLevel = 0; 
+        let isRolling = false;
+        let campaignTimer = null;
+
+        let player = createEntity();
+        let ai = createEntity();
+
+        const ui = {
+            pDice: document.getElementById('player-dice-container'), aiDice: document.getElementById('ai-dice-container'),
+            status: document.getElementById('status-text'), total: document.getElementById('turn-total'),
+            bustLimit: document.getElementById('bust-limit-indicator'),
+            mainHud: document.getElementById('main-hud'),
+            btnRoll: document.getElementById('btn-roll'), btnAttack: document.getElementById('btn-attack'), btnSkill: document.getElementById('btn-skill'),
+            pHpBar: document.getElementById('player-hp-bar'), pShieldBar: document.getElementById('player-shield-bar'),
+            aiHpBar: document.getElementById('ai-hp-bar'), aiShieldBar: document.getElementById('ai-shield-bar'),
+            pDiceCount: document.getElementById('player-dice-counter'), aiDiceCount: document.getElementById('ai-dice-counter'),
+            classScreen: document.getElementById('class-screen'), endScreen: document.getElementById('end-screen'),
+            debugBoss: document.getElementById('debug-boss'),
+            campaignScreen: document.getElementById('campaign-screen'),
+            campaignWrapper: document.getElementById('campaign-wrapper'),
+            miniTimeline: document.getElementById('mini-timeline'),
+            titleScreen: document.getElementById('title-screen'),
+            tutorialScreen: document.getElementById('tutorial-screen'),
+            skillModal: document.getElementById('skill-modal'),
+            infoTitle: document.getElementById('info-title'),
+            infoDesc: document.getElementById('info-desc'),
+            infoStatus: document.getElementById('info-status')
+        };
+
+        function createEntity() {
+            return { classId: null, hp: 30, maxHP: 30, shield: 0, score: 0, diceThrown: 0, cdTimer: 0, activeEffects: { crit: false, bustProtect: false, enrage: false, absorb: false, intimidate: false, bustLimitMod: 0, sixShooter: false, hauntActive: false, haunted: false }, maxDiceMod: 0, bustLimitModPermanent: 0, ritualCharges: 2, diceVals: [] };
+        }
+
+        // --- Menu Logic ---
+        function showClassSelection() {
+            ui.titleScreen.classList.add('hidden');
+            ui.classScreen.classList.remove('hidden');
+        }
+
+        function showTutorial() {
+            ui.titleScreen.classList.add('hidden');
+            ui.tutorialScreen.classList.remove('hidden');
+        }
+
+        function hideTutorial() {
+            ui.tutorialScreen.classList.add('hidden');
+            ui.titleScreen.classList.remove('hidden');
+        }
+
+        function showBattleInfo(target) {
+            const entity = target === 'player' ? player : ai;
+            const cls = CLASSES[entity.classId];
+            ui.infoTitle.innerText = cls.skillName;
+            ui.infoTitle.style.color = `var(--${cls.color}-color)`;
+            ui.infoDesc.innerText = cls.fullDesc;
+            
+            // Dynamic Status Logic
+            let statusText = "";
+            if (entity.activeEffects.crit) statusText = "STATUS: 2x Damage Active";
+            else if (entity.activeEffects.bustProtect) statusText = "STATUS: Bust Protection Active";
+            else if (entity.activeEffects.enrage) statusText = "STATUS: Enraged (Limit 16)";
+            else if (entity.activeEffects.absorb) statusText = "STATUS: Absorb Active";
+            else if (entity.activeEffects.intimidate) statusText = "STATUS: Intimidating";
+            else if (entity.activeEffects.sixShooter) statusText = "STATUS: Fanning Hammer";
+            else if (entity.activeEffects.hauntActive) statusText = "STATUS: Haunting Enemy";
+            else if (entity.shield > 0) statusText = `STATUS: ${entity.shield} Armor`;
+            else if (entity.classId === 'ritualist') statusText = `CHARGES: ${entity.ritualCharges}/2`;
+            else statusText = entity.cdTimer > 0 ? `COOLDOWN: ${entity.cdTimer} Turns` : "READY";
+
+            ui.infoStatus.innerText = statusText;
+            ui.skillModal.classList.remove('hidden');
+        }
+
+        function closeSkillInfo() {
+            ui.skillModal.classList.add('hidden');
+        }
+
+        // --- Init ---
+        function selectClass(classKey) {
+            player.classId = classKey;
+            applyClassTheme('player', classKey);
+            ui.classScreen.classList.add('hidden');
+            
+            let allClasses = ['knight', 'rogue', 'mage', 'brute', 'vampire', 'warrior', 'gambler', 'outlaw', 'ritualist', 'ghoul'];
+            let enemies = allClasses.filter(c => c !== classKey).sort(() => Math.random() - 0.5);
+            campaignOrder = [...enemies.slice(0, 5), 'boss'];
+            
+            if(ui.debugBoss.checked) currentLevel = 5; else currentLevel = 0;
+
+            showCampaignScreen();
+        }
+
+        function showCampaignScreen() {
+            ui.endScreen.classList.add('hidden'); 
+            ui.campaignWrapper.innerHTML = '<div class="c-line-container"><div class="c-line-fill" id="c-line-fill"></div></div>';
+            
+            campaignOrder.forEach((enemyId, index) => {
+                const row = document.createElement('div');
+                row.className = 'c-row';
+                const node = document.createElement('div');
+                node.className = `c-node ${enemyId}`;
+                node.style.backgroundColor = `var(--${CLASSES[enemyId].color}-color)`;
+                const label = document.createElement('div');
+                label.className = 'c-label';
+                if(enemyId === 'boss') { label.classList.add('boss-label'); label.innerText = "BOSS FIGHT"; }
+                else { label.innerText = CLASSES[enemyId].name.toUpperCase(); }
+                label.style.color = `var(--${CLASSES[enemyId].color}-color)`;
+
+                if(index === currentLevel) { node.classList.add('active'); label.classList.add('active'); }
+                else if(index < currentLevel) { node.classList.add('defeated'); }
+
+                row.appendChild(node); row.appendChild(label);
+                ui.campaignWrapper.appendChild(row);
+            });
+
+            ui.campaignScreen.classList.remove('hidden');
+            const line = document.getElementById('c-line-fill');
+            const totalLevels = campaignOrder.length - 1;
+            const prevPercent = Math.max(0, (currentLevel - 1) / totalLevels * 100);
+            line.style.transition = 'none'; line.style.height = `${prevPercent}%`; line.style.background = `var(--${CLASSES[player.classId].color}-color)`;
+            
+            setTimeout(() => {
+                line.style.transition = 'height 2.3s ease-in-out';
+                const currPercent = (currentLevel / totalLevels * 100);
+                line.style.height = `${currPercent}%`;
+            }, 100);
+
+            campaignTimer = setTimeout(startBattleSetup, 3000);
+        }
+
+        function skipCampaign() { if(campaignTimer) clearTimeout(campaignTimer); startBattleSetup(); }
+
+        function startBattleSetup() {
+            ui.campaignScreen.classList.add('hidden');
+            let enemyClass = campaignOrder[currentLevel];
+            resetEntity(player, CLASSES[player.classId].maxHP); 
+            ai.classId = enemyClass; resetEntity(ai, CLASSES[enemyClass].maxHP);
+            applyClassTheme('ai', ai.classId);
+            document.getElementById('ai-name').innerText = enemyClass === 'boss' ? CLASSES.boss.name : CLASSES[enemyClass].name.toUpperCase();
+            updateMiniTimeline(); updateStatsUI(); ui.endScreen.classList.add('hidden'); clearBoard();
+            setTimeout(startRollOff, 100);
+        }
+
+        function updateMiniTimeline() {
+            ui.miniTimeline.innerHTML = '';
+            campaignOrder.forEach((enemyId, index) => {
+                const node = document.createElement('div');
+                node.className = 'mini-node';
+                node.style.backgroundColor = `var(--${CLASSES[enemyId].color}-color)`;
+                if(index === currentLevel) node.classList.add('active');
+                ui.miniTimeline.appendChild(node);
+                if(index < campaignOrder.length - 1) {
+                    const line = document.createElement('div');
+                    line.className = 'mini-line';
+                    if(index < currentLevel) line.classList.add('active');
+                    ui.miniTimeline.appendChild(line);
+                }
+            });
+        }
+
+        function resetEntity(entity, maxHP) {
+            entity.hp = maxHP; entity.maxHP = maxHP; entity.shield = 0;
+            entity.cdTimer = 0; entity.activeEffects = { crit: false, bustProtect: false, enrage: false, absorb: false, intimidate: false, bustLimitMod: 0, sixShooter: false, hauntActive: false, haunted: false };
+            entity.maxDiceMod = 0; entity.bustLimitModPermanent = 0; entity.ritualCharges = 2;
+            entity.score = 0; entity.diceThrown = 0; entity.diceVals = [];
+        }
+
+        function applyClassTheme(entity, classKey) {
+            const bg = document.getElementById(entity === 'player' ? 'player-bg' : 'ai-bg');
+            let colorHex = '#111';
+            if(classKey === 'knight') colorHex = '#0a1a2a';
+            if(classKey === 'rogue') colorHex = '#2a0a0a';
+            if(classKey === 'mage') colorHex = '#1a0a2a';
+            if(classKey === 'brute') colorHex = '#0a2a0a';
+            if(classKey === 'vampire') colorHex = '#152025';
+            if(classKey === 'warrior') colorHex = '#2a0e05';
+            if(classKey === 'gambler') colorHex = '#2a001a';
+            if(classKey === 'outlaw') colorHex = '#00002a';
+            if(classKey === 'ritualist') colorHex = '#1a0a05';
+            if(classKey === 'ghoul') colorHex = '#001a1a';
+            if(classKey === 'boss') colorHex = '#2a2a00';
+            bg.style.background = `linear-gradient(${entity === 'player' ? '0deg' : '180deg'}, ${colorHex} 0%, #050505 100%)`;
+            
+            if(entity === 'player') {
+                ui.btnSkill.innerText = `${CLASSES[classKey].skillName}`;
+                const cVar = `var(--${CLASSES[classKey].color}-color)`;
+                ui.btnSkill.style.background = cVar; ui.btnSkill.style.borderColor = cVar;
+            }
+        }
+
+        // --- Battle Logic ---
+
+        async function startRollOff() {
+            currentState = STATE.ROLL_OFF; isRolling = true;
+            ui.status.innerText = "ROLLING INITIATIVE..."; ui.total.innerText = "--";
+            ui.total.style.color = "var(--text-color)";
+            ui.mainHud.className = "center-hud neutral"; 
+            toggleButtons(false); clearBoard();
+
+            const pPromises = [ animateDieVisual(ui.pDice, player.classId), animateDieVisual(ui.pDice, player.classId), animateDieVisual(ui.pDice, player.classId) ];
+            const aiPromises = [ animateDieVisual(ui.aiDice, ai.classId), animateDieVisual(ui.aiDice, ai.classId), animateDieVisual(ui.aiDice, ai.classId) ];
+            const pResults = await Promise.all(pPromises);
+            const aiResults = await Promise.all(aiPromises);
+            const pSum = pResults.reduce((a,b)=>a+b,0);
+            const aiSum = aiResults.reduce((a,b)=>a+b,0);
+
+            ui.status.innerText = `YOU: ${pSum} vs AI: ${aiSum}`;
+            await wait(1200); 
+
+            if(pSum === aiSum) {
+                ui.status.innerText = "TIE! REROLLING...";
+                ui.status.style.color = "#FFD700";
+                await wait(1000);
+                clearBoard();
+                ui.status.style.color = "#ccc";
+                startRollOff();
+            } else {
+                clearBoard(); isRolling = false;
+                if(pSum > aiSum) startTurn('player'); else startTurn('ai');
+            }
+        }
+
+        async function animateDieVisual(container, classKey) {
+            const dieEl = createDieElement(1, classKey);
+            container.appendChild(dieEl);
+            const delays = [50, 50, 50, 70, 90, 120, 150, 220];
+            for (let delay of delays) { updateDieFace(dieEl, rd()); await wait(delay); }
+            let finalVal = rd(); updateDieFace(dieEl, finalVal); dieEl.classList.add('landed');
+            return finalVal;
+        }
+
+        function startTurn(who) {
+            if(checkGameOver()) return;
+            let entity = who === 'player' ? player : ai;
+            entity.score = 0; entity.diceThrown = 0; entity.diceVals = [];
+            if(entity.cdTimer > 0 && !entity.activeEffects.hauntActive) entity.cdTimer--; // Ghoul CD logic handled separately
+            
+            // Reset Buffs
+            entity.activeEffects.bustProtect = false;
+            entity.activeEffects.enrage = false;
+            entity.activeEffects.absorb = false; 
+            entity.activeEffects.intimidate = false;
+            entity.activeEffects.sixShooter = false;
+
+            clearBoard(); updateStatsUI();
+            ui.total.style.color = "var(--text-color)";
+            
+            if(who === 'player') {
+                currentState = STATE.PLAYER_TURN;
+                ui.mainHud.className = "center-hud p-turn"; 
+                ui.status.innerText = "YOUR TURN"; 
+                ui.total.innerText = "0";
+                updateControls();
+            } else {
+                currentState = STATE.AI_TURN;
+                ui.mainHud.className = "center-hud ai-turn";
+                ui.status.innerText = `${CLASSES[ai.classId].name} THINKING...`; 
+                ui.total.innerText = "0";
+                toggleButtons(false); setTimeout(aiLogic, 1000);
+            }
+        }
+
+        async function playerAction(action) {
+            if(currentState !== STATE.PLAYER_TURN || isRolling) return;
+            if(action === 'roll') await performRoll(player, ui.pDice, () => updateControls());
+            else if (action === 'attack') performAttack(player, ai);
+            else if (action === 'skill') { activateSkill(player); updateControls(); }
+        }
+
+        async function performRoll(entity, container, callback) {
+            const cfg = CLASSES[entity.classId];
+            
+            // Calc Max Dice
+            let maxD = cfg.maxDice + entity.maxDiceMod;
+            if (entity.activeEffects.haunted) maxD -= 1;
+            if (maxD < 1) maxD = 1;
+
+            if(entity.diceThrown >= maxD && !entity.activeEffects.sixShooter) return;
+
+            isRolling = true; toggleButtons(false);
+            let finalVal = await animateDieVisual(container, entity.classId);
+
+            entity.diceVals.push(finalVal); entity.diceThrown++; entity.score += finalVal;
+            ui.total.innerText = entity.score; 
+            
+            let cap = cfg.bust + (entity.activeEffects.bustLimitMod || 0) + entity.bustLimitModPermanent;
+            if(entity.activeEffects.enrage || entity.activeEffects.sixShooter) cap = 16 + (entity.activeEffects.bustLimitMod || 0) + entity.bustLimitModPermanent;
+            
+            ui.bustLimit.innerText = `Max: ${cap}`;
+            ui.total.style.color = "var(--text-color)";
+
+            isRolling = false; updateStatsUI();
+            checkDoublesHeal(entity);
+            await wait(500);
+            
+            await checkTurnResult(entity, container, cap, callback);
+        }
+
+        async function checkTurnResult(entity, container, cap, callback) {
+            if(entity.score > cap) {
+                if(entity.activeEffects.bustProtect) {
+                    spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', "BUST PREVENTED!", "#9C27B0");
+                    await wait(1000);
+                    let lastDie = entity.diceVals.pop(); entity.score -= lastDie; entity.diceThrown--;
+                    entity.activeEffects.bustProtect = false;
+                    container.removeChild(container.lastChild);
+                    ui.total.innerText = entity.score; updateStatsUI();
+                    if(callback) callback();
+                } else {
+                    spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', "BUST!", "#FF5252");
+                    ui.total.style.color = "#FF5252"; 
+                    
+                    // Specific Bust Penalties
+                    if(entity.classId === 'knight' && entity.shield > 0) {
+                        entity.shield = 0; updateStatsUI();
+                        spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', "SHIELDS BROKEN", "#FF5252");
+                        await wait(500);
+                    }
+                    if(entity.activeEffects.enrage) {
+                         spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', "ENRAGE BACKFIRE! -5 HP", "#43A047");
+                         takeDamage(entity, 5); await wait(500);
+                    }
+                    if(entity.activeEffects.sixShooter) {
+                        entity.maxDiceMod -= 1;
+                        spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', "GUN JAMMED! -1 MAX DICE", "#283593");
+                        await wait(500);
+                    }
+                    if(entity.activeEffects.hauntActive) {
+                        entity.activeEffects.hauntActive = false;
+                        const target = entity === player ? ai : player;
+                        target.activeEffects.haunted = false;
+                        entity.cdTimer = 3; // Cooldown starts now
+                        spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', "HAUNT BROKEN", "#009688");
+                        updateStatsUI(); await wait(500);
+                    }
+
+                    if(entity === player && ai.classId === 'boss') {
+                        spawnFloatText('player-floats', "BOSS PASSIVE: -5 HP!", "#FFD700");
+                        takeDamage(player, 5);
+                    }
+                    await wait(1500);
+                    endTurn(entity === player ? 'player' : 'ai');
+                }
+            } else {
+                // Outlaw Auto-Roll Logic
+                if(entity.activeEffects.sixShooter) {
+                    const cfg = CLASSES[entity.classId];
+                    let maxD = cfg.maxDice + entity.maxDiceMod;
+                    if(entity.diceThrown < maxD) {
+                        await performRoll(entity, container, callback);
+                        return;
+                    }
+                }
+                if(callback) callback();
+            }
+        }
+
+        function checkDoublesHeal(entity) {
+            if(entity.diceVals.length >= 2) {
+                const len = entity.diceVals.length;
+                if(entity.diceVals[len-1] === entity.diceVals[len-2]) {
+                    const amount = 10;
+                    entity.hp = Math.min(entity.hp + amount, entity.maxHP);
+                    updateStatsUI();
+                    spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', `+${amount} HP (DOUBLES!)`, "#4CAF50");
+                }
+            }
+        }
+
+        function spawnFloatText(containerId, text, color) {
+            const container = document.getElementById(containerId);
+            const el = document.createElement('div');
+            el.className = 'float-msg'; el.innerText = text; el.style.color = color;
+            container.appendChild(el);
+            setTimeout(() => { el.remove(); }, 1200);
+        }
+
+        function performAttack(attacker, defender) {
+            let dmg = attacker.score;
+            let msg = "ATTACK!"; let col = "#ccc";
+
+            if(attacker.activeEffects.crit) { dmg *= 2; attacker.activeEffects.crit = false; msg = "CRITICAL HIT!"; col = "#FFD700"; } 
+            
+            if(attacker.activeEffects.absorb) {
+                const actualHeal = Math.min(5, Math.floor(dmg / 2));
+                attacker.hp = Math.min(attacker.hp + actualHeal, attacker.maxHP);
+                updateStatsUI();
+                msg = `ABSORB! +${actualHeal} HP`; col = "var(--vampire-color)";
+                attacker.activeEffects.absorb = false;
+            }
+
+            if(attacker.activeEffects.intimidate) {
+                let debuff = Math.min(4, Math.floor(dmg / 3)); 
+                if(debuff > 0) {
+                    defender.activeEffects.bustLimitMod = -debuff;
+                    setTimeout(() => spawnFloatText(defender === player ? 'player-floats' : 'ai-floats', `ENEMY BUST: -${debuff}`, "#FF8A65"), 800);
+                }
+                attacker.activeEffects.intimidate = false;
+            }
+
+            spawnFloatText(attacker === player ? 'player-floats' : 'ai-floats', msg, col);
+            takeDamage(defender, dmg);
+            endTurn(attacker === player ? 'player' : 'ai');
+        }
+
+        async function activateSkill(entity) {
+            if(entity.cdTimer > 0) return;
+            const cfg = CLASSES[entity.classId];
+            
+            // Special Checks
+            if(entity.classId === 'ritualist' && entity.ritualCharges <= 0) return;
+            if(entity.classId === 'ghoul' && entity.activeEffects.hauntActive) return;
+
+            // Handle Cooldowns (Ritualist has none, Ghoul starts on Bust)
+            if(entity.classId !== 'ritualist' && entity.classId !== 'ghoul') entity.cdTimer = cfg.skillCd + 1;
+            
+            let msg = "SKILL USED"; let col = "#fff";
+            
+            if(entity.classId === 'knight') { entity.shield += 5; updateStatsUI(); msg = "SHIELD UP (+5)"; col = "var(--knight-color)"; } 
+            else if (entity.classId === 'rogue') { entity.activeEffects.crit = true; msg = "WEAPON SHARPENED"; col = "var(--rogue-color)"; }
+            else if (entity.classId === 'mage') { entity.activeEffects.bustProtect = true; msg = "PROTECTION SPELL"; col = "var(--mage-color)"; }
+            else if (entity.classId === 'brute') { entity.activeEffects.enrage = true; msg = "ENRAGED! (CAP 16)"; col = "var(--brute-color)"; }
+            else if (entity.classId === 'vampire') { entity.activeEffects.absorb = true; msg = "THIRST ACTIVE"; col = "var(--vampire-color)"; }
+            else if (entity.classId === 'warrior') { entity.activeEffects.intimidate = true; msg = "INTIMIDATION READY"; col = "var(--warrior-color)"; }
+            else if (entity.classId === 'gambler') {
+                msg = "LUCKY DICE! +6"; col = "var(--gambler-color)";
+                spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', msg, col);
+                const container = entity === player ? ui.pDice : ui.aiDice;
+                const dieEl = createDieElement(6, 'gambler');
+                dieEl.classList.add('landed');
+                container.appendChild(dieEl);
+                entity.diceVals.push(6); entity.diceThrown++; entity.score += 6;
+                ui.total.innerText = entity.score; updateStatsUI();
+                checkDoublesHeal(entity); await wait(500);
+                let cap = cfg.bust + (entity.activeEffects.bustLimitMod || 0) + entity.bustLimitModPermanent;
+                await checkTurnResult(entity, container, cap, () => updateControls());
+                return;
+            }
+            else if (entity.classId === 'outlaw') {
+                entity.activeEffects.sixShooter = true;
+                msg = "SIX SHOOTER!"; col = "var(--outlaw-color)";
+                spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', msg, col);
+                ui.bustLimit.innerText = `Max: 16`;
+                await wait(500);
+                // Trigger auto roll loop
+                const container = entity === player ? ui.pDice : ui.aiDice;
+                await performRoll(entity, container, () => updateControls());
+                return;
+            }
+            else if (entity.classId === 'ritualist') {
+                takeDamage(entity, 12);
+                entity.maxDiceMod += 1;
+                entity.bustLimitModPermanent += 4;
+                entity.ritualCharges--;
+                msg = "BLOOD OATH TAKEN"; col = "var(--ritualist-color)";
+            }
+            else if (entity.classId === 'ghoul') {
+                entity.activeEffects.hauntActive = true;
+                const target = entity === player ? ai : player;
+                target.activeEffects.haunted = true;
+                msg = "HAUNTING ENEMY"; col = "var(--ghoul-color)";
+            }
+            
+            updateControls();
+            if(entity === player && entity.classId === 'brute') ui.bustLimit.innerText = `Max: 16`;
+            spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', msg, col);
+        }
+
+        function takeDamage(entity, amount) {
+            if(entity.shield > 0 && amount > 0) { amount -= 1; entity.shield -= 1; }
+            entity.hp -= amount; if(entity.hp < 0) entity.hp = 0;
+            updateStatsUI();
+            const zone = entity === player ? document.querySelector('.player-zone') : document.querySelector('.opponent-zone');
+            zone.style.transform = "translateX(5px)"; setTimeout(() => zone.style.transform = "translateX(0)", 100);
+        }
+
+        function endTurn(currentMover) { 
+            if(currentMover === 'player') player.activeEffects.bustLimitMod = 0;
+            else ai.activeEffects.bustLimitMod = 0;
+            if(currentMover === 'player') startTurn('ai'); else startTurn('player'); 
+        }
+
+        async function aiLogic() {
+            if(currentState !== STATE.AI_TURN) return;
+            const cfg = CLASSES[ai.classId];
+
+            if(ai.cdTimer === 0 && ai.classId !== 'boss') {
+                let use = false;
+                if(ai.classId === 'knight' || ai.classId === 'rogue') use = true;
+                if(ai.classId === 'mage' && ai.score >= 7) use = true;
+                if(ai.classId === 'brute' && ai.score >= 7) use = true;
+                if(ai.classId === 'vampire' && ai.hp < 25) use = true;
+                if(ai.classId === 'warrior' && ai.score > 0) use = true;
+                if(ai.classId === 'gambler' && ai.score <= 6 && ai.diceThrown < 2) use = true;
+                if(ai.classId === 'ritualist' && ai.hp > 20 && ai.ritualCharges > 0) use = true;
+                if(ai.classId === 'ghoul' && !ai.activeEffects.hauntActive) use = true;
+                if(ai.classId === 'outlaw' && ai.score < 5) use = true; 
+
+                if(use) { await activateSkill(ai); await wait(1000); }
+            }
+            if(currentState !== STATE.AI_TURN) return;
+
+            let cap = cfg.bust + (ai.activeEffects.bustLimitMod || 0) + ai.bustLimitModPermanent;
+            if(ai.activeEffects.enrage || ai.activeEffects.sixShooter) cap = 16 + (ai.activeEffects.bustLimitMod || 0) + ai.bustLimitModPermanent;
+
+            let threshold = cap - 4; 
+            if(ai.activeEffects.bustProtect) threshold = cap;
+            if(ai.classId === 'boss') threshold = cap - 3;
+            if(ai.activeEffects.enrage) threshold = 13;
+            if(ai.activeEffects.sixShooter) threshold = 100; // Keep rolling until bust/max
+
+            // Recalc Max Dice for logic
+            let maxD = cfg.maxDice + ai.maxDiceMod;
+            if (ai.activeEffects.haunted) maxD -= 1;
+            if (maxD < 1) maxD = 1;
+
+            if(ai.diceThrown < maxD && ai.score <= threshold) {
+                await performRoll(ai, ui.aiDice);
+                if(currentState === STATE.AI_TURN && !isRolling) setTimeout(aiLogic, 500);
+            } else {
+                if(ai.score > 0) performAttack(ai, player); else endTurn('ai');
+            }
+        }
+
+        function rd() { return Math.floor(Math.random() * 6) + 1; }
+        function createDieElement(val, classKey) {
+            const die = document.createElement('div');
+            die.className = `die ${classKey || ''}`;
+            for(let i=0; i<9; i++) { let d = document.createElement('div'); d.className = 'dot'; die.appendChild(d); }
+            updateDieFace(die, val);
+            return die;
+        }
+        function updateDieFace(dieEl, val) { dieEl.setAttribute('data-val', val); }
+
+        function updateControls() {
+            const cfg = CLASSES[player.classId];
+            
+            let maxD = cfg.maxDice + player.maxDiceMod;
+            if (player.activeEffects.haunted) maxD -= 1;
+            if (maxD < 1) maxD = 1;
+
+            ui.btnRoll.disabled = (player.diceThrown >= maxD) || isRolling;
+            ui.btnAttack.disabled = (player.score === 0) || isRolling;
+            
+            // Skill Btn Logic
+            let canUse = false;
+            if(player.classId === 'ritualist') canUse = player.ritualCharges > 0;
+            else if(player.classId === 'ghoul') canUse = !player.activeEffects.hauntActive && player.cdTimer <= 0;
+            else canUse = player.cdTimer <= 0;
+
+            if(!canUse) {
+                ui.btnSkill.disabled = true; 
+                ui.btnSkill.innerHTML = player.classId === 'ritualist' ? `${cfg.skillName} (${player.ritualCharges})` : `${cfg.skillName} <span class="cd-text">(${player.cdTimer})</span>`; 
+                ui.btnSkill.style.opacity = 0.5;
+            } else {
+                ui.btnSkill.disabled = false; ui.btnSkill.innerText = cfg.skillName; ui.btnSkill.style.opacity = 1;
+            }
+            
+            let cap = cfg.bust + (player.activeEffects.bustLimitMod || 0) + player.bustLimitModPermanent;
+            if(player.activeEffects.enrage || player.activeEffects.sixShooter) cap = 16 + (player.activeEffects.bustLimitMod || 0) + player.bustLimitModPermanent;
+            ui.bustLimit.innerText = `Max: ${cap}`;
+        }
+
+        function updateStatsUI() {
+            ui.pHpBar.style.width = (player.hp/player.maxHP)*100 + "%"; 
+            ui.pShieldBar.style.width = (Math.min(player.shield, 30)/30)*100 + "%";
+            document.getElementById('player-hp-text').innerText = `${player.hp}/${player.maxHP} ${player.shield>0 ? '('+player.shield+')' : ''}`;
+            
+            let pMax = CLASSES[player.classId].maxDice + player.maxDiceMod;
+            if(player.activeEffects.haunted) pMax--;
+            ui.pDiceCount.innerText = `Dice: ${player.diceThrown}/${pMax < 1 ? 1 : pMax} ${player.activeEffects.haunted ? '(HAUNTED)' : ''}`;
+            
+            ui.aiHpBar.style.width = (ai.hp/ai.maxHP)*100 + "%"; 
+            ui.aiShieldBar.style.width = (Math.min(ai.shield, 30)/30)*100 + "%";
+            document.getElementById('ai-hp-text').innerText = `${ai.hp}/${ai.maxHP} ${ai.shield>0 ? '('+ai.shield+')' : ''}`;
+            
+            let aiMax = CLASSES[ai.classId].maxDice + ai.maxDiceMod;
+            if(ai.activeEffects.haunted) aiMax--;
+            ui.aiDiceCount.innerText = `Dice: ${ai.diceThrown}/${aiMax < 1 ? 1 : aiMax} ${ai.activeEffects.haunted ? '(HAUNTED)' : ''}`;
+        }
+
+        function clearBoard() { ui.pDice.innerHTML = ''; ui.aiDice.innerHTML = ''; }
+        
+        function checkGameOver() {
+            if(player.hp <= 0 || ai.hp <= 0) {
+                currentState = STATE.GAME_OVER;
+                ui.endScreen.classList.remove('hidden');
+                const title = document.getElementById('end-title');
+                const summ = document.getElementById('end-summ');
+                const btnGroup = document.getElementById('end-buttons');
+                btnGroup.innerHTML = '';
+
+                if(player.hp > 0) {
+                    currentLevel++;
+                    if(currentLevel >= campaignOrder.length) {
+                        title.innerText = "LEGENDARY VICTORY!"; title.style.color = "#FFD700";
+                        summ.innerText = "You have conquered the Dungeon.";
+                        btnGroup.innerHTML = `<button class="end-btn" style="background:#fff; color:#000;" onclick="location.reload()">PLAY AGAIN</button>`;
+                    } else {
+                        title.innerText = "VICTORY!"; title.style.color = "#4CAF50";
+                        summ.innerText = `The ${CLASSES[ai.classId].name} has fallen.`;
+                        btnGroup.innerHTML = `<button class="end-btn" style="background:#4CAF50; color:#fff;" onclick="showCampaignScreen()">CONTINUE JOURNEY</button>`;
+                    }
+                } else {
+                    title.innerText = "DEFEAT"; title.style.color = "#F44336";
+                    summ.innerText = "Your journey ends here.";
+                    btnGroup.innerHTML = `<button class="end-btn" style="background:#fff; color:#000;" onclick="location.reload()">RESTART</button>`;
+                }
+                toggleButtons(false);
+                return true;
+            }
+            return false;
+        }
+
+        function toggleButtons(enable) { ui.btnRoll.disabled = !enable; ui.btnAttack.disabled = !enable; ui.btnSkill.disabled = !enable; }
+        function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+    </script>
+</body>
+</html>
