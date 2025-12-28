@@ -14,24 +14,27 @@
             --knight-color: #1E88E5;
             --rogue-color: #E53935;
             --mage-color: #8E24AA;
+            --executioner-color: #722F37;
             --brute-color: #43A047;
             --vampire-color: #607D8B;
             --warrior-color: #FF8A65;
             --gambler-color: #D81B60;
-            --outlaw-color: #283593; /* Navy Blue */
-            --ritualist-color: #5D4037; /* Dark Brown */
-            --ghoul-color: #009688; /* Teal */
+            --outlaw-color: #283593; 
+            --ritualist-color: #5D4037; 
+            --ghoul-color: #009688; 
+            --ninja-color: #4B0082; 
             --boss-color: #FFD700;
             
             --dice-dot: #fff;
             --dice-dot-vampire: #D32F2F;
             --dice-dot-warrior: #000;
             --dice-dot-gambler: #FFEB3B;
-            --dice-dot-ritualist: #D32F2F; /* Red Pips */
+            --dice-dot-ritualist: #D32F2F; 
+            --dice-dot-executioner: #808080;
+            --dice-dot-ninja: #191970;
             --dice-dot-boss: #000;
             
             --hp-bg: #222;
-            --hp-fill: #388E3C;
             --shield-fill: #00ACC1;
         }
 
@@ -50,30 +53,92 @@
 
         /* --- TITLE SCREEN --- */
         #title-screen { 
-            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #141e30);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            background: #000;
             z-index: 200; 
+            overflow: hidden;
         }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        
+        .title-flow {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45vh;
+            background: linear-gradient(to right, 
+                var(--knight-color), var(--rogue-color), var(--mage-color), var(--executioner-color),
+                var(--brute-color), var(--vampire-color), var(--warrior-color), var(--gambler-color), 
+                var(--outlaw-color), var(--ritualist-color), var(--ghoul-color), var(--ninja-color),
+                var(--knight-color) 
+            );
+            background-size: 200% 100%; 
+            animation: flowAnim 4s linear infinite;
+            mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+            -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+            opacity: 0.8;
+            z-index: -1;
         }
-        .title-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 50px; }
+
+        @keyframes flowAnim {
+            0% { background-position: 0% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .title-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 50px; position: relative; z-index: 2; }
         .title-line { font-size: 5rem; font-weight: 900; line-height: 0.9; text-shadow: 0 0 20px rgba(255,255,255,0.1); letter-spacing: 5px; }
         .title-line:nth-child(2) { color: var(--rogue-color); }
         .menu-btn { background: transparent; border: 2px solid #aaa; color: #fff; padding: 15px 40px; font-size: 1.2rem; font-family: 'Cinzel', serif; margin: 10px; width: 250px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 2px; }
         .menu-btn:hover { background: #fff; color: #000; border-color: #fff; box-shadow: 0 0 15px #fff; }
 
+        /* --- GLOBAL NAVIGATION --- */
+        #back-btn-container {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 500;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #back-btn-container:active { transform: scale(0.9); }
+        .back-icon-circle {
+            width: 36px;
+            height: 36px;
+            border: 2px solid #666;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.6);
+        }
+        .back-icon-circle svg { width: 20px; height: 20px; fill: #aaa; }
+
+        /* --- EXIT CONFIRMATION MODAL --- */
+        #exit-modal { background: rgba(0,0,0,0.95); z-index: 600; }
+        .exit-btn-row { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+        .exit-btn { background: transparent; border: 1px solid #555; color: #fff; padding: 10px 25px; cursor: pointer; font-family: 'Cinzel', serif; }
+        .exit-btn.confirm { border-color: var(--rogue-color); color: var(--rogue-color); }
+
         /* --- TUTORIAL --- */
         #tutorial-screen { background: #080808; z-index: 210; align-items: flex-start; overflow-y: auto; }
-        .tutorial-content { max-width: 500px; padding: 20px; text-align: left; }
+        /* FIXED: Added padding-bottom to ensure content doesn't get hidden behind back button */
+        .tutorial-content { max-width: 500px; padding: 20px; padding-bottom: 100px; text-align: left; width: 100%; }
         .tut-header { font-size: 2rem; color: var(--boss-color); margin-bottom: 20px; text-align: center; }
-        .tut-section { margin-bottom: 25px; }
-        .tut-title { font-size: 1.1rem; color: #fff; margin-bottom: 5px; border-bottom: 1px solid #444; padding-bottom: 2px; }
-        .tut-text { font-family: 'Lato', sans-serif; font-size: 0.95rem; color: #aaa; line-height: 1.5; }
-        .back-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; border: 1px solid #555; width: auto; padding: 10px 30px; }
+        
+        /* New Grid Layout for Page 2 */
+        .tut-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .tut-section { margin-bottom: 15px; }
+        .tut-grid .tut-section { margin-bottom: 0; } /* Remove bottom margin inside grid items */
+        
+        .tut-title { font-size: 1rem; color: #fff; margin-bottom: 4px; border-bottom: 1px solid #444; padding-bottom: 2px; font-weight: bold; }
+        .tut-text { font-family: 'Lato', sans-serif; font-size: 0.85rem; color: #aaa; line-height: 1.4; }
+        
+        .tut-nav-row { display: flex; justify-content: space-between; margin-top: 30px; }
+        .tut-nav-btn { background: #222; border: 1px solid #444; color: #fff; padding: 10px 20px; cursor: pointer; font-family: 'Cinzel', serif; }
+        
+        .tut-page { display: none; }
+        .tut-page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+        
+        .back-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; border: 1px solid #555; width: auto; padding: 10px 30px; z-index: 220; }
 
         /* --- MODAL --- */
         #skill-modal { background: rgba(0,0,0,0.95); z-index: 300; }
@@ -93,24 +158,113 @@
         .mini-line { width: 12px; height: 2px; background: #444; }
         .mini-line.active { background: #fff; }
 
-        .center-hud { position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); z-index: 20; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+        .center-hud { position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); z-index: 20; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; width: 100%; }
         #turn-total { font-size: 6rem; font-weight: 900; margin: 0; line-height: 1; text-shadow: 0 4px 10px rgba(0,0,0,0.9); transition: color 0.3s; position: relative; z-index: 2; }
-        #status-text { position: absolute; left: 50%; transform: translateX(-50%); width: 300px; color: #ccc; font-size: 1.1rem; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.7); padding: 6px 16px; border-radius: 20px; border: 1px solid #444; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease-in-out; z-index: 3; }
+        
+        #status-text { 
+            position: absolute; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 320px; 
+            color: #ccc; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8); 
+            background: rgba(0,0,0,0.7); 
+            padding: 8px 16px; 
+            border-radius: 20px; 
+            border: 1px solid #444; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            transition: all 0.3s ease-in-out; 
+            z-index: 3; 
+        }
+
         #bust-limit-indicator { position: absolute; left: 50%; transform: translateX(-50%); font-family: 'Lato', sans-serif; font-size: 0.9rem; color: #aaa; background: rgba(0,0,0,0.6); padding: 4px 12px; border-radius: 12px; border: 1px solid #333; transition: all 0.3s ease-in-out; white-space: nowrap; z-index: 1; }
 
         .p-turn #status-text { top: -45px; } .p-turn #bust-limit-indicator { bottom: -35px; opacity: 1; }
         .ai-turn #status-text { top: 90px; } .ai-turn #bust-limit-indicator { bottom: -35px; opacity: 0; }
-        .neutral #status-text { top: -45px; } .neutral #bust-limit-indicator { bottom: -35px; opacity: 0; }
+        .neutral #status-text { top: 50%; transform: translate(-50%, -50%); } .neutral #bust-limit-indicator { bottom: -35px; opacity: 0; }
 
-        .stats-container { width: 100%; max-width: 340px; margin-bottom: 5px; position: relative; }
-        .stats-label { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; text-shadow: 1px 1px 2px black; letter-spacing: 1px; }
-        .dice-counter { font-family: 'Lato', sans-serif; font-size: 0.85rem; background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 12px; margin-top: 6px; display: inline-block; width: 100%; text-align: center; color: #aaa; letter-spacing: 1px; border: 1px solid #333; }
-        .bar-wrapper { width: 100%; height: 22px; background: var(--hp-bg); border-radius: 4px; position: relative; overflow: hidden; border: 1px solid #444; }
-        .hp-bar, .shield-bar { height: 100%; position: absolute; top: 0; left: 0; transition: width 0.3s ease; }
-        .hp-bar { background-color: var(--hp-fill); z-index: 1; }
-        .shield-bar { background-color: var(--shield-fill); z-index: 2; opacity: 0.9; }
+        .stats-container { width: 100%; max-width: 340px; margin-bottom: 2px; position: relative; }
+        
+        .status-line {
+            height: 14px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            font-size: 0.7rem;
+            font-weight: 900;
+            font-family: sans-serif;
+            margin-bottom: 1px;
+        }
+        
+        .stats-label { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+            font-weight: bold; 
+            font-size: 1.1rem; 
+            margin-bottom: -3px; 
+            padding-bottom: 0px; 
+            line-height: 1; 
+            text-shadow: 1px 1px 2px black; 
+            letter-spacing: 1px; 
+            z-index: 5;
+            position: relative;
+        }
+        
+        .dice-counter { 
+            font-family: 'Lato', sans-serif; 
+            font-size: 0.85rem; 
+            background: transparent; 
+            border: none;
+            padding: 0;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            display: inline-block; 
+            width: 100%; 
+            text-align: center; 
+            color: #aaa; 
+            letter-spacing: 1px; 
+        }
 
-        .battle-info-icon { width: 20px; height: 20px; border: 1px solid #777; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #aaa; cursor: pointer; margin-left: 8px; font-family: 'Lato', sans-serif; }
+        #ai-bust-indicator {
+            font-family: 'Lato', sans-serif;
+            font-size: 0.8rem;
+            color: #777;
+            text-align: center;
+            width: 100%;
+            margin-top: 2px;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+        .ai-turn-active #ai-bust-indicator { opacity: 1; color: #ccc; text-shadow: 0 0 5px rgba(255,255,255,0.2); }
+
+        .bar-wrapper { 
+            width: 100%; 
+            height: 22px; 
+            background: var(--hp-bg); 
+            border-radius: 8px; 
+            position: relative; 
+            overflow: hidden; 
+            border: 1px solid #444; 
+            margin-top: 4px;
+        }
+        .hp-bar { 
+            height: 100%; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            transition: width 0.3s ease; 
+            background: linear-gradient(to bottom, #e53935 0%, #b71c1c 100%); 
+            border-radius: 8px; 
+            z-index: 1; 
+        }
+        .shield-bar { background-color: var(--shield-fill); z-index: 2; opacity: 0.9; height: 100%; position: absolute; top: 0; left: 0; transition: width 0.3s ease; }
+
+        .battle-info-icon { width: 20px; height: 20px; border: 1px solid #777; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #aaa; cursor: pointer; margin-left: 8px; font-family: 'Lato', sans-serif; margin-bottom: 2px; }
         .battle-info-icon:active { background: #fff; color: #000; }
 
         .dice-area { display: flex; gap: 8px; height: 90px; align-items: center; justify-content: center; margin: 5px 0; perspective: 1000px; }
@@ -120,6 +274,7 @@
         .die.knight { background-color: var(--knight-color); }
         .die.rogue { background-color: var(--rogue-color); }
         .die.mage { background-color: var(--mage-color); }
+        .die.executioner { background-color: var(--executioner-color); .dot { background-color: var(--dice-dot-executioner); } }
         .die.brute { background-color: var(--brute-color); }
         .die.warrior { background-color: var(--warrior-color); .dot { background-color: var(--dice-dot-warrior); } }
         .die.gambler { background-color: var(--gambler-color); .dot { background-color: var(--dice-dot-gambler); } }
@@ -127,6 +282,7 @@
         .die.outlaw { background-color: var(--outlaw-color); }
         .die.ritualist { background-color: var(--ritualist-color); .dot { background-color: var(--dice-dot-ritualist); } }
         .die.ghoul { background-color: var(--ghoul-color); }
+        .die.ninja { background-color: var(--ninja-color); .dot { background-color: var(--dice-dot-ninja); } }
         .die.boss { background-color: var(--boss-color); .dot { background-color: var(--dice-dot-boss); } }
 
         .die[data-val="1"] .dot:nth-child(5) { opacity: 1; }
@@ -150,9 +306,10 @@
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; }
         .hidden { display: none !important; }
 
-        #class-screen { justify-content: center; padding: 0; }
+        #class-screen { justify-content: center; padding: 0; background-color: #000; transition: background 0.5s ease; }
         .carousel-title { margin-bottom: 20px; font-size: 1.8rem; text-shadow: 0 4px 10px #000; letter-spacing: 2px; }
-        .carousel-container { width: 100%; height: 520px; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 20px; padding: 0 40px; align-items: center; -webkit-overflow-scrolling: touch; }
+        /* FIXED HERO CENTERING: Added padding based on (100vw/2 - cardWidth/2) */
+        .carousel-container { width: 100%; height: 520px; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 20px; padding: 0 calc(50vw - 165px); align-items: center; -webkit-overflow-scrolling: touch; }
         .carousel-container::-webkit-scrollbar { display: none; }
         .class-card { flex: 0 0 300px; height: 480px; scroll-snap-align: center; background: linear-gradient(145deg, #1a1a1a, #0d0d0d); border: 1px solid #444; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 30px; transition: transform 0.3s, box-shadow 0.3s; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
         .class-card:hover { transform: translateY(-5px); border-color: #888; }
@@ -161,6 +318,7 @@
         .k-icon { background: var(--knight-color); box-shadow: 0 0 25px var(--knight-color); }
         .r-icon { background: var(--rogue-color); box-shadow: 0 0 25px var(--rogue-color); }
         .m-icon { background: var(--mage-color); box-shadow: 0 0 25px var(--mage-color); }
+        .e-icon { background: var(--executioner-color); box-shadow: 0 0 25px var(--executioner-color); }
         .b-icon { background: var(--brute-color); box-shadow: 0 0 25px var(--brute-color); }
         .v-icon { background: var(--vampire-color); box-shadow: 0 0 25px var(--vampire-color); }
         .w-icon { background: var(--warrior-color); box-shadow: 0 0 25px var(--warrior-color); }
@@ -168,24 +326,27 @@
         .o-icon { background: var(--outlaw-color); box-shadow: 0 0 25px var(--outlaw-color); }
         .rt-icon { background: var(--ritualist-color); box-shadow: 0 0 25px var(--ritualist-color); }
         .gh-icon { background: var(--ghoul-color); box-shadow: 0 0 25px var(--ghoul-color); }
+        .n-icon { background: var(--ninja-color); box-shadow: 0 0 25px var(--ninja-color); }
 
         .class-icon-lg svg { width: 55px; height: 55px; }
         .class-content { display: flex; flex-direction: column; align-items: center; width: 100%; }
         .class-title { font-size: 2rem; margin: 10px 0; font-weight: 900; letter-spacing: 2px; }
-        .class-desc { font-family: 'Lato', sans-serif; color: #aaa; margin: 15px 0; font-size: 0.95rem; line-height: 1.5; text-align: center; min-height: 60px; }
-        .stat-row { display: flex; gap: 8px; margin-bottom: 15px; justify-content: center; width: 100%; }
+        .class-skill-name { font-size: 0.8rem; font-weight: 700; color: #fff; text-transform: uppercase; margin-top: 10px; border-bottom: 1px solid #444; width: 100%; text-align: center; padding-bottom: 5px; }
+        .class-desc { font-family: 'Lato', sans-serif; color: #aaa; margin: 5px 0 15px 0; font-size: 0.95rem; line-height: 1.4; text-align: center; min-height: 80px; }
+        .stat-row { display: flex; gap: 8px; margin-bottom: 10px; justify-content: center; width: 100%; }
         .stat-badge { background: #000; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; border: 1px solid #333; color: #ccc; font-family: 'Lato', sans-serif; }
         .btn-select { width: 100%; padding: 14px; font-size: 1.1rem; background: #fff; color: #000; border: none; margin-top: auto; }
 
         #campaign-screen { background: #050505; cursor: pointer; }
-        .campaign-wrapper { width: 100%; max-width: 350px; height: 80vh; display: flex; flex-direction: column-reverse; position: relative; justify-content: space-between; padding: 40px 0; }
+        .campaign-wrapper { width: 100%; max-width: 350px; height: 80vh; display: flex; flex-direction: column-reverse; position: relative; justify-content: space-between; align-items: center; padding: 40px 0; }
         .c-row { display: flex; justify-content: center; align-items: center; width: 100%; position: relative; z-index: 2; }
         .c-node { width: 24px; height: 24px; border-radius: 50%; background: #222; border: 2px solid #555; transition: all 0.5s; position: relative; z-index: 5; }
         .c-node.boss { width: 40px; height: 40px; border: 3px solid #FFD700; background: #222; }
         .c-label { position: absolute; font-size: 1.1rem; font-weight: bold; color: #555; text-transform: uppercase; white-space: nowrap; transition: all 0.5s; }
         .c-row:nth-child(odd) .c-label { left: 55%; text-align: left; }
         .c-row:nth-child(even) .c-label { right: 55%; text-align: right; }
-        .c-label.boss-label { top: -35px; left: 50%; transform: translateX(-50%); color: #FFD700; font-size: 1.5rem; text-shadow: 0 0 10px #FFD700; width: 100%; text-align: center !important; right: auto !important; }
+        .c-label.boss-label { top: -35px; left: 50%; transform: translateX(-50%); width: 200px; color: #FFD700; font-size: 1.5rem; text-shadow: 0 0 10px #FFD700; text-align: center !important; right: auto !important; }
+        
         .c-node.active { transform: scale(1.2); border-color: #fff; box-shadow: 0 0 15px white; }
         .c-label.active { color: #fff; text-shadow: 0 0 8px currentColor; }
         .c-node.defeated { opacity: 0.6; filter: grayscale(0.5); }
@@ -200,7 +361,25 @@
 </head>
 <body>
 
+    <div id="back-btn-container" class="hidden" onclick="tryExit()">
+        <div class="back-icon-circle">
+            <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </div>
+    </div>
+
+    <div id="exit-modal" class="overlay hidden">
+        <div class="modal-box">
+            <h3 class="modal-title" style="color: #fff;">QUIT GAME?</h3>
+            <p class="modal-desc">Progress will be lost.</p>
+            <div class="exit-btn-row">
+                <button class="exit-btn" onclick="closeExitModal()">CANCEL</button>
+                <button class="exit-btn confirm" onclick="confirmExit()">QUIT</button>
+            </div>
+        </div>
+    </div>
+
     <div id="title-screen" class="overlay">
+        <div class="title-flow"></div>
         <div class="title-container">
             <div class="title-line">DICE</div>
             <div class="title-line">JACK</div>
@@ -211,13 +390,36 @@
 
     <div id="tutorial-screen" class="overlay hidden">
         <div class="tutorial-content">
-            <h2 class="tut-header">HOW TO PLAY</h2>
-            <div class="tut-section"><div class="tut-title">OBJECTIVE</div><div class="tut-text">Defeat 5 Opponents and the Boss by reducing their HP to 0. Survive the dungeon gauntlet.</div></div>
-            <div class="tut-section"><div class="tut-title">THE TURN</div><div class="tut-text">1. <b>Roll Dice:</b> Add dice to increase your score.<br>2. <b>Attack:</b> Deal damage equal to your score.<br>3. <b>Bust:</b> If your score exceeds your class limit, your turn ends with 0 damage.</div></div>
-            <div class="tut-section"><div class="tut-title">SPECIAL RULES</div><div class="tut-text">- <b>Doubles Heal:</b> Rolling the same number twice in a row heals 10 HP.<br>- <b>Skills:</b> Each class has a unique skill. Use them wisely!</div></div>
-            <div style="height: 60px;"></div>
+            <div id="tut-page-1" class="tut-page active">
+                <h2 class="tut-header">WHAT IS DICEJACK?</h2>
+                <div class="tut-text" style="margin-bottom: 15px;">DiceJack is a blend of BlackJack and dice rolls where your goal is to win a turn based battle by rolling multiple dice one after the other trying to get as close as possible to your Bust limit before attacking, but if you Bust, you will do 0 damage for the turn.</div>
+                <div class="tut-text" style="margin-bottom: 15px;">The goal is to defeat 5 different Enemy classes of Heroes in the Gauntlet and ultimately beat the Boss Fight to win the game.</div>
+                <div class="tut-text">There are 10+ classes of heroes to choose from so find what suits your playstyle and learn the strengths and weaknesses of each to beat the game.</div>
+                <div class="tut-text" style="margin-top: 15px; color: #fff;">Read more on how a Battle works on the next page.</div>
+            </div>
+
+            <div id="tut-page-2" class="tut-page">
+                <h2 class="tut-header">HOW TO BATTLE</h2>
+                <div class="tut-text">Each side has 30HP in a battle (45 for Boss), whoever loses all of their HP first loses the battle. After winning a Battle you will move on to battle the next class until you reach the Boss.</div>
+                
+                <div class="tut-section" style="margin-top:10px;"><div class="tut-title">Initiative Roll</div><div class="tut-text">Before every Battle an Initiative Roll of three dice is played on both sides, the person who rolled the highest value gets the first turn in Battle. A tie results in a re-roll until one side wins.</div></div>
+                
+                <div class="tut-grid">
+                    <div class="tut-section"><div class="tut-title">Roll</div><div class="tut-text">This action will roll a dice, adding to your total displayed in the center of the screen, you can roll as long as you have rolls left or until you Bust.</div></div>
+                    <div class="tut-section"><div class="tut-title">Attack</div><div class="tut-text">Once you are satisfied with the current roll value, you will choose to Attack which will damage the enemy for the amount you rolled.</div></div>
+                    <div class="tut-section"><div class="tut-title">Bust</div><div class="tut-text">If you roll a value that exceeds your max limit, you will Bust which makes you lose the turn and do 0 damage. Every class varies in the amount of dice they can roll and the max bust value so play to your classes strengths.</div></div>
+                    <div class="tut-section"><div class="tut-title">Skill</div><div class="tut-text">Every class has their own unique skills which can be activated during a turn, these can be effectively used to turn the tides of a battle and even counter enemy skills.</div></div>
+                </div>
+                
+                <div class="tut-section" style="margin-top: 15px;"><div class="tut-title">Healing</div><div class="tut-text">Rolling the same value of dice twice in a row heals for 10HP.</div></div>
+            </div>
+
+            <div class="tut-nav-row">
+                <button class="tut-nav-btn" onclick="prevTutorialPage()">PREV</button>
+                <button class="tut-nav-btn" onclick="nextTutorialPage()">NEXT</button>
+            </div>
         </div>
-        <button class="menu-btn back-btn" onclick="hideTutorial()">BACK</button>
+        <button class="menu-btn back-btn" onclick="hideTutorial()">BACK TO MENU</button>
     </div>
 
     <div id="skill-modal" class="overlay hidden">
@@ -234,6 +436,7 @@
     <div class="section opponent-zone" id="ai-bg">
         <div class="float-overlay" id="ai-floats"></div>
         <div class="stats-container">
+            <div class="status-line" id="ai-status-line"></div>
             <div class="stats-label">
                 <div style="display:flex; align-items:center;">
                     <span id="ai-name">OPPONENT</span>
@@ -243,6 +446,7 @@
             </div>
             <div class="bar-wrapper"><div id="ai-hp-bar" class="hp-bar" style="width: 100%;"></div><div id="ai-shield-bar" class="shield-bar" style="width: 0%;"></div></div>
             <div class="dice-counter" id="ai-dice-counter">Dice: 0/3</div>
+            <div id="ai-bust-indicator">Max: --</div>
         </div>
         <div class="dice-area" id="ai-dice-container"></div>
     </div>
@@ -257,9 +461,10 @@
         <div class="dice-area" id="player-dice-container"></div>
         <div class="stats-container">
             <div class="float-overlay" id="player-floats"></div>
+            <div class="dice-counter" id="player-dice-counter">Dice: 0/3</div>
+            <div class="status-line" id="player-status-line"></div>
             <div class="stats-label"><span id="player-name">YOU</span><span id="player-hp-text">30/30</span></div>
             <div class="bar-wrapper"><div id="player-hp-bar" class="hp-bar" style="width: 100%;"></div><div id="player-shield-bar" class="shield-bar" style="width: 0%;"></div></div>
-            <div class="dice-counter" id="player-dice-counter">Dice: 0/3</div>
         </div>
         <div class="controls">
             <button id="btn-roll" onclick="playerAction('roll')">Roll</button>
@@ -280,108 +485,139 @@
         <p style="color: #777; margin-bottom: 20px; font-size: 0.9rem;">Swipe to view</p>
         <div class="carousel-container" id="class-carousel">
             
-            <div class="class-card">
+            <div class="class-card" id="card-knight" data-class="knight">
                 <div class="class-content">
                     <div class="class-icon-lg k-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg></div>
                     <div class="class-title" style="color: var(--knight-color)">KNIGHT</div>
                     <div class="stat-row"><span class="stat-badge">Max Dice: 3</span><span class="stat-badge">Bust: 10</span></div>
-                    <div class="class-desc">Adds +5 Armor. Armor absorbs damage before HP. Armor persists until broken.</div>
+                    <div class="class-skill-name" style="color: var(--knight-color)">SKILL: SHIELD UP (CD: 3)</div>
+                    <div class="class-desc">Active: Gain +5 Armor. Passive: Armor absorbs 1 damage from every incoming attack until broken.</div>
                 </div>
                 <button class="btn-select" onclick="selectClass('knight')">SELECT</button>
             </div>
 
-            <div class="class-card">
+            <div class="class-card" id="card-rogue" data-class="rogue">
                 <div class="class-content">
-                    <div class="class-icon-lg w-icon"><svg viewBox="0 0 24 24"><path d="M6 5 L12 11 L18 5 M6 13 L12 19 L18 13" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-                    <div class="class-title" style="color: var(--warrior-color)">WARRIOR</div>
-                    <div class="stat-row"><span class="stat-badge">Max Dice: 3</span><span class="stat-badge">Bust: 12</span></div>
-                    <div class="class-desc">Your attack reduces the Enemy's Bust Limit for their next turn (1 limit per 3 damage, Max -4).</div>
-                </div>
-                <button class="btn-select" onclick="selectClass('warrior')">SELECT</button>
-            </div>
-
-            <div class="class-card">
-                <div class="class-content">
-                    <div class="class-icon-lg g-icon"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div>
-                    <div class="class-title" style="color: var(--gambler-color)">GAMBLER</div>
-                    <div class="stat-row"><span class="stat-badge">Max Dice: 2</span><span class="stat-badge">Bust: 12</span></div>
-                    <div class="class-desc">Instantly adds a '6' to your total score without rolling. Can trigger Doubles Heal.</div>
-                </div>
-                <button class="btn-select" onclick="selectClass('gambler')">SELECT</button>
-            </div>
-
-            <div class="class-card">
-                <div class="class-content">
-                    <div class="class-icon-lg r-icon"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div>
+                    <div class="class-icon-lg r-icon"><svg viewBox="0 0 24 24"><path d="M12 2 L15 6 L12 22 L9 6 Z" fill="#fff"/></svg></div>
                     <div class="class-title" style="color: var(--rogue-color)">ROGUE</div>
                     <div class="stat-row"><span class="stat-badge">Max Dice: 2</span><span class="stat-badge">Bust: 8</span></div>
-                    <div class="class-desc">Your next attack deals Double (2x) Damage. Effect lasts until you attack.</div>
+                    <div class="class-skill-name" style="color: var(--rogue-color)">SKILL: ASSASSINATE (CD: 2)</div>
+                    <div class="class-desc">Next attack deals 200% (2x) Damage. Effect active until attack is performed.</div>
                 </div>
                 <button class="btn-select" onclick="selectClass('rogue')">SELECT</button>
             </div>
 
-            <div class="class-card">
+            <div class="class-card" id="card-mage" data-class="mage">
                 <div class="class-content">
                     <div class="class-icon-lg m-icon"><svg viewBox="0 0 24 24"><path d="M2 17h20v2H2zM12 2L3 15h18L12 2zm0 3.8L17.8 13H6.2L12 5.8z"/></svg></div>
                     <div class="class-title" style="color: var(--mage-color)">MAGE</div>
-                    <div class="stat-row"><span class="stat-badge">Max Dice: 4</span><span class="stat-badge">Bust: 12</span></div>
-                    <div class="class-desc">If you Bust on your next roll, the die is removed, the Bust is ignored, and the turn continues.</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 4</span><span class="stat-badge">Bust: 10</span></div>
+                    <div class="class-skill-name" style="color: var(--mage-color)">SKILL: REWIND (CD: 3)</div>
+                    <div class="class-desc">Next roll is safe: If you Bust, the die is removed and turn continues. If safe, score adds normally.</div>
                 </div>
                 <button class="btn-select" onclick="selectClass('mage')">SELECT</button>
             </div>
 
-            <div class="class-card">
+            <div class="class-card" id="card-executioner" data-class="executioner">
+                <div class="class-content">
+                    <div class="class-icon-lg e-icon"><svg viewBox="0 0 24 24"><path d="M6 3l12 18M18 3L6 21" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M6 3a9 9 0 0 0 0 18M18 3a9 9 0 0 1 0 18" fill="none" stroke="#fff" stroke-width="2"/></svg></div>
+                    <div class="class-title" style="color: var(--executioner-color)">EXECUTIONER</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 2</span><span class="stat-badge">Bust: 10</span></div>
+                    <div class="class-skill-name" style="color: var(--executioner-color)">SKILL: DEEP CUT (CD: 3)</div>
+                    <div class="class-desc">Apply Bleeding. Enemy loses 1 HP for every die they roll. Lasts 2 turns or 6 damage.</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('executioner')">SELECT</button>
+            </div>
+
+            <div class="class-card" id="card-brute" data-class="brute">
                 <div class="class-content">
                     <div class="class-icon-lg b-icon"><svg viewBox="0 0 24 24"><path d="M12 21l-10-18h20z"/></svg></div>
                     <div class="class-title" style="color: var(--brute-color)">BRUTE</div>
-                    <div class="stat-row"><span class="stat-badge">Max Dice: 5</span><span class="stat-badge">Bust: 10</span></div>
-                    <div class="class-desc">Increases Bust Limit to 16 for this turn. Warning: Busting while Enraged deals 5 damage to yourself.</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 4</span><span class="stat-badge">Bust: 10</span></div>
+                    <div class="class-skill-name" style="color: var(--brute-color)">SKILL: ENRAGE (CD: 4)</div>
+                    <div class="class-desc">Bust Limit becomes 16 this turn. Passive: Taking 5 self-damage if you Bust while Enraged.</div>
                 </div>
                 <button class="btn-select" onclick="selectClass('brute')">SELECT</button>
             </div>
 
-            <div class="class-card">
+            <div class="class-card" id="card-vampire" data-class="vampire">
                 <div class="class-content">
                     <div class="class-icon-lg v-icon"><svg viewBox="0 0 24 24"><path d="M12 2C7.58 6.57 4 10.5 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8c0-3.5-3.58-7.43-8-12z"/></svg></div>
                     <div class="class-title" style="color: var(--vampire-color)">VAMPIRE</div>
                     <div class="stat-row"><span class="stat-badge">Max Dice: 3</span><span class="stat-badge">Bust: 10</span></div>
-                    <div class="class-desc">For this turn, 50% of damage dealt is restored as Health (Max 5HP).</div>
+                    <div class="class-skill-name" style="color: var(--vampire-color)">SKILL: ABSORB (CD: 3)</div>
+                    <div class="class-desc">Heal for 50% of unblocked damage dealt this turn (Cap: 5 HP).</div>
                 </div>
                 <button class="btn-select" onclick="selectClass('vampire')">SELECT</button>
             </div>
 
-            <div class="class-card">
+            <div class="class-card" id="card-warrior" data-class="warrior">
+                <div class="class-content">
+                    <div class="class-icon-lg w-icon"><svg viewBox="0 0 24 24"><path d="M6 5 L12 11 L18 5 M6 13 L12 19 L18 13" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="class-title" style="color: var(--warrior-color)">WARRIOR</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 3</span><span class="stat-badge">Bust: 12</span></div>
+                    <div class="class-skill-name" style="color: var(--warrior-color)">SKILL: INTIMIDATION (CD: 3)</div>
+                    <div class="class-desc">Attack reduces Enemy Bust Limit by 1 for every 3 damage dealt (Max -4). Lasts 1 turn.</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('warrior')">SELECT</button>
+            </div>
+
+            <div class="class-card" id="card-gambler" data-class="gambler">
+                <div class="class-content">
+                    <div class="class-icon-lg g-icon"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div>
+                    <div class="class-title" style="color: var(--gambler-color)">GAMBLER</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 2</span><span class="stat-badge">Bust: 12</span></div>
+                    <div class="class-skill-name" style="color: var(--gambler-color)">SKILL: LUCKY DICE (CD: 4)</div>
+                    <div class="class-desc">Instantly add 6 to score. Counts as a rolled die for Doubles Heal (10 HP).</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('gambler')">SELECT</button>
+            </div>
+
+            <div class="class-card" id="card-outlaw" data-class="outlaw">
                 <div class="class-content">
                     <div class="class-icon-lg o-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-4-8c0 2.21 1.79 4 4 4s4-1.79 4-4-1.79-4-4-4-4 1.79-4 4zm4 2c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg></div>
                     <div class="class-title" style="color: var(--outlaw-color)">OUTLAW</div>
                     <div class="stat-row"><span class="stat-badge">Max Dice: 6</span><span class="stat-badge">Bust: 8</span></div>
-                    <div class="class-desc">Raises Bust Limit to 16 and auto-rolls all dice. Penalty: -1 Max Dice for battle if you bust.</div>
+                    <div class="class-skill-name" style="color: var(--outlaw-color)">SKILL: SIX SHOOTER (CD: 2)</div>
+                    <div class="class-desc">Bust Limit becomes 18. Auto-roll remaining dice. Penalty: -1 Max Dice for rest of battle if you Bust.</div>
                 </div>
                 <button class="btn-select" onclick="selectClass('outlaw')">SELECT</button>
             </div>
 
-            <div class="class-card">
+            <div class="class-card" id="card-ritualist" data-class="ritualist">
                 <div class="class-content">
-                    <div class="class-icon-lg rt-icon"><svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></div>
+                    <div class="class-icon-lg rt-icon"><svg viewBox="0 0 24 24"><path d="M12,4.5C7,4.5,2.73,7.61,1,12c1.73,4.39,6,7.5,11,7.5s9.27-3.11,11-7.5C21.27,7.61,17,4.5,12,4.5z M12,17c-2.76,0-5-2.24-5-5 s2.24-5,5-5s5,2.24,5,5S14.76,17,12,17z M12,9c-1.66,0-3,1.34-3,3s1.34,3,3,3s3-1.34,3-3S13.66,9,12,9z"/></svg></div>
                     <div class="class-title" style="color: var(--ritualist-color)">RITUALIST</div>
-                    <div class="stat-row"><span class="stat-badge">Max Dice: 3</span><span class="stat-badge">Bust: 10</span></div>
-                    <div class="class-desc">Sacrifice 12 HP to gain +1 Max Dice and +4 Bust Limit for the rest of battle (2 Charges).</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 2</span><span class="stat-badge">Bust: 8</span></div>
+                    <div class="class-skill-name" style="color: var(--ritualist-color)">SKILL: BLOOD OATH (CHARGES: 2)</div>
+                    <div class="class-desc">Cost: 12 HP. Gain +1 Max Dice and +4 Permanent Bust Limit. 1 Turn Cooldown between charges.</div>
                 </div>
                 <button class="btn-select" onclick="selectClass('ritualist')">SELECT</button>
             </div>
 
-            <div class="class-card">
+            <div class="class-card" id="card-ghoul" data-class="ghoul">
                 <div class="class-content">
                     <div class="class-icon-lg gh-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.41 2.87 8.19 6.84 9.5.55.18.81.75.64 1.29-.18.54-.76.84-1.3.65C3.71 21.73.5 17.26.5 12 .5 5.65 5.65.5 12 .5s11.5 5.15 11.5 11.5c0 5.26-3.21 9.73-7.68 11.44-.54.19-1.12-.11-1.3-.65-.17-.54.09-1.11.64-1.29 3.97-1.31 6.84-5.09 6.84-9.5 0-5.52-4.48-10-10-10z M9 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
                     <div class="class-title" style="color: var(--ghoul-color)">GHOUL</div>
                     <div class="stat-row"><span class="stat-badge">Max Dice: 3</span><span class="stat-badge">Bust: 10</span></div>
-                    <div class="class-desc">Haunts enemy (-1 Max Dice). Effect lasts until Ghoul busts. Cooldown starts after effect ends.</div>
+                    <div class="class-skill-name" style="color: var(--ghoul-color)">SKILL: HAUNT (CD: 3)</div>
+                    <div class="class-desc">Apply 'Haunted': Enemy gets -1 Max Dice. Effect ends if Ghoul Busts. Cooldown: 3 turns after effect ends.</div>
                 </div>
                 <button class="btn-select" onclick="selectClass('ghoul')">SELECT</button>
             </div>
 
+            <div class="class-card" id="card-ninja" data-class="ninja">
+                <div class="class-content">
+                    <div class="class-icon-lg n-icon"><svg viewBox="0 0 24 24"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/></svg></div>
+                    <div class="class-title" style="color: var(--ninja-color)">NINJA</div>
+                    <div class="stat-row"><span class="stat-badge">Max Dice: 3</span><span class="stat-badge">Bust: 12</span></div>
+                    <div class="class-skill-name" style="color: var(--ninja-color)">SKILL: STEALTH (CD: 3)</div>
+                    <div class="class-desc">Become Hidden. Enemy cannot use Skill. Hidden breaks on Bust or taking 8+ damage.</div>
+                </div>
+                <button class="btn-select" onclick="selectClass('ninja')">SELECT</button>
+            </div>
+
         </div>
-        <label class="debug-opt"><input type="checkbox" id="debug-boss"> [DEBUG] Skip to Boss</label>
     </div>
 
     <div id="end-screen" class="overlay hidden">
@@ -393,16 +629,18 @@
     <script>
         // --- Game Config ---
         const CLASSES = {
-            knight: { name: 'Knight', color: 'knight', maxDice: 3, bust: 10, maxHP: 30, skillName: 'Shield Up', skillCd: 3, fullDesc: "Adds +5 Armor. Armor absorbs damage before HP. Armor persists until broken." },
-            rogue: { name: 'Rogue', color: 'rogue', maxDice: 2, bust: 8, maxHP: 30, skillName: 'Assassinate', skillCd: 2, fullDesc: "Your next attack deals Double (2x) Damage. Effect lasts until you attack." },
-            mage: { name: 'Mage', color: 'mage', maxDice: 4, bust: 12, maxHP: 30, skillName: 'Rewind', skillCd: 3, fullDesc: "If you Bust on your next roll, the die is removed, the Bust is ignored, and the turn continues." },
-            brute: { name: 'Brute', color: 'brute', maxDice: 5, bust: 10, maxHP: 30, skillName: 'Enrage', skillCd: 4, fullDesc: "Increases Bust Limit to 16 for this turn. Warning: Busting while Enraged deals 5 damage to yourself." },
-            vampire: { name: 'Vampire', color: 'vampire', maxDice: 3, bust: 10, maxHP: 30, skillName: 'Absorb', skillCd: 3, fullDesc: "For this turn, 50% of damage dealt is restored as Health (Max 5HP)." },
-            warrior: { name: 'Warrior', color: 'warrior', maxDice: 3, bust: 12, maxHP: 30, skillName: 'Intimidation', skillCd: 3, fullDesc: "Your attack reduces the Enemy's Bust Limit for their next turn (1 limit per 3 damage, Max -4)." },
-            gambler: { name: 'Gambler', color: 'gambler', maxDice: 2, bust: 12, maxHP: 30, skillName: 'Lucky Dice', skillCd: 4, fullDesc: "Instantly adds a '6' to your total score without rolling. Can trigger Doubles Heal." },
-            outlaw: { name: 'Outlaw', color: 'outlaw', maxDice: 6, bust: 8, maxHP: 30, skillName: 'Six Shooter', skillCd: 2, fullDesc: "Raises Bust Limit to 16 and auto-rolls all remaining dice. Penalty: -1 Max Dice for battle if you bust." },
-            ritualist: { name: 'Ritualist', color: 'ritualist', maxDice: 3, bust: 10, maxHP: 30, skillName: 'Blood Oath', charges: 2, fullDesc: "Sacrifice 12 HP to gain +1 Max Dice and +4 Bust Limit for the rest of battle." },
-            ghoul: { name: 'Ghoul', color: 'ghoul', maxDice: 3, bust: 10, maxHP: 30, skillName: 'Haunt', skillCd: 3, fullDesc: "Haunts enemy (-1 Max Dice). Effect lasts until Ghoul busts. Cooldown starts after effect ends." },
+            knight: { name: 'Knight', color: 'knight', maxDice: 3, bust: 10, maxHP: 30, skillName: 'Shield Up', skillCd: 3, fullDesc: "Active: Gain +5 Armor. Passive: Armor absorbs 1 damage from every incoming attack until broken." },
+            rogue: { name: 'Rogue', color: 'rogue', maxDice: 2, bust: 8, maxHP: 30, skillName: 'Assassinate', skillCd: 2, fullDesc: "Next attack deals 200% (2x) Damage. Effect active until attack is performed." },
+            mage: { name: 'Mage', color: 'mage', maxDice: 4, bust: 10, maxHP: 30, skillName: 'Rewind', skillCd: 3, fullDesc: "Next roll is safe: If you Bust, the die is removed and turn continues. If safe, score adds normally." },
+            executioner: { name: 'Executioner', color: 'executioner', maxDice: 2, bust: 10, maxHP: 30, skillName: 'Deep Cut', skillCd: 3, fullDesc: "Apply Bleeding to enemy. Bleeding deals 1 damage each time they roll a die (Max 6 dmg or 2 turns)." },
+            brute: { name: 'Brute', color: 'brute', maxDice: 4, bust: 10, maxHP: 30, skillName: 'Enrage', skillCd: 4, fullDesc: "Bust Limit becomes 16 this turn. Passive: Taking 5 self-damage if you Bust while Enraged." },
+            vampire: { name: 'Vampire', color: 'vampire', maxDice: 3, bust: 10, maxHP: 30, skillName: 'Absorb', skillCd: 3, fullDesc: "Heal for 50% of unblocked damage dealt this turn (Cap: 5 HP)." },
+            warrior: { name: 'Warrior', color: 'warrior', maxDice: 3, bust: 12, maxHP: 30, skillName: 'Intimidation', skillCd: 3, fullDesc: "Attack reduces Enemy Bust Limit by 1 for every 3 damage dealt (Max -4). Lasts 1 turn." },
+            gambler: { name: 'Gambler', color: 'gambler', maxDice: 2, bust: 12, maxHP: 30, skillName: 'Lucky Dice', skillCd: 4, fullDesc: "Instantly add 6 to score. Counts as a rolled die for Doubles Heal (10 HP)." },
+            outlaw: { name: 'Outlaw', color: 'outlaw', maxDice: 6, bust: 8, maxHP: 30, skillName: 'Six Shooter', skillCd: 2, fullDesc: "Bust Limit becomes 18. Auto-roll remaining dice. Penalty: -1 Max Dice for rest of battle if you Bust." },
+            ritualist: { name: 'Ritualist', color: 'ritualist', maxDice: 2, bust: 8, maxHP: 30, skillName: 'Blood Oath', charges: 2, fullDesc: "Cost: 12 HP. Gain +1 Max Dice and +4 Permanent Bust Limit. 1 Turn Cooldown between charges." },
+            ghoul: { name: 'Ghoul', color: 'ghoul', maxDice: 3, bust: 10, maxHP: 30, skillName: 'Haunt', skillCd: 3, fullDesc: "Apply 'Haunted': Enemy gets -1 Max Dice. Effect ends if Ghoul Busts. Cooldown: 3 turns after effect ends." },
+            ninja: { name: 'Ninja', color: 'ninja', maxDice: 3, bust: 12, maxHP: 30, skillName: 'Stealth', skillCd: 3, fullDesc: "Become Hidden. Enemy cannot use Skill. Hidden breaks on Bust or taking 8+ damage." },
             boss: { name: 'THE BOSS', color: 'boss', maxDice: 3, bust: 12, maxHP: 45, skillName: 'Intimidate', skillCd: 99, fullDesc: "Passive: Intimidating Presence deals 5 damage if you bust." }
         };
         const STATE = { START: 0, ROLL_OFF: 1, PLAYER_TURN: 2, AI_TURN: 3, GAME_OVER: 4 };
@@ -412,6 +650,7 @@
         let currentLevel = 0; 
         let isRolling = false;
         let campaignTimer = null;
+        let skipResolver = null;
 
         let player = createEntity();
         let ai = createEntity();
@@ -420,13 +659,13 @@
             pDice: document.getElementById('player-dice-container'), aiDice: document.getElementById('ai-dice-container'),
             status: document.getElementById('status-text'), total: document.getElementById('turn-total'),
             bustLimit: document.getElementById('bust-limit-indicator'),
+            aiBustLimit: document.getElementById('ai-bust-indicator'),
             mainHud: document.getElementById('main-hud'),
             btnRoll: document.getElementById('btn-roll'), btnAttack: document.getElementById('btn-attack'), btnSkill: document.getElementById('btn-skill'),
             pHpBar: document.getElementById('player-hp-bar'), pShieldBar: document.getElementById('player-shield-bar'),
             aiHpBar: document.getElementById('ai-hp-bar'), aiShieldBar: document.getElementById('ai-shield-bar'),
             pDiceCount: document.getElementById('player-dice-counter'), aiDiceCount: document.getElementById('ai-dice-counter'),
             classScreen: document.getElementById('class-screen'), endScreen: document.getElementById('end-screen'),
-            debugBoss: document.getElementById('debug-boss'),
             campaignScreen: document.getElementById('campaign-screen'),
             campaignWrapper: document.getElementById('campaign-wrapper'),
             miniTimeline: document.getElementById('mini-timeline'),
@@ -435,28 +674,39 @@
             skillModal: document.getElementById('skill-modal'),
             infoTitle: document.getElementById('info-title'),
             infoDesc: document.getElementById('info-desc'),
-            infoStatus: document.getElementById('info-status')
+            infoStatus: document.getElementById('info-status'),
+            opponentZone: document.querySelector('.opponent-zone'),
+            pStatusLine: document.getElementById('player-status-line'),
+            aiStatusLine: document.getElementById('ai-status-line'),
+            backBtn: document.getElementById('back-btn-container'),
+            exitModal: document.getElementById('exit-modal')
         };
 
         function createEntity() {
-            return { classId: null, hp: 30, maxHP: 30, shield: 0, score: 0, diceThrown: 0, cdTimer: 0, activeEffects: { crit: false, bustProtect: false, enrage: false, absorb: false, intimidate: false, bustLimitMod: 0, sixShooter: false, hauntActive: false, haunted: false }, maxDiceMod: 0, bustLimitModPermanent: 0, ritualCharges: 2, diceVals: [] };
+            return { 
+                classId: null, hp: 30, maxHP: 30, shield: 0, score: 0, diceThrown: 0, cdTimer: 0, 
+                activeEffects: { crit: false, bustProtect: false, enrage: false, absorb: false, intimidate: false, bustLimitMod: 0, sixShooter: false, hauntActive: false, haunted: false, hidden: false, bleeding: null }, 
+                maxDiceMod: 0, bustLimitModPermanent: 0, ritualCharges: 2, ritualBlock: false, diceVals: [] 
+            };
         }
 
         // --- Menu Logic ---
-        function showClassSelection() {
-            ui.titleScreen.classList.add('hidden');
-            ui.classScreen.classList.remove('hidden');
-        }
+        function showClassSelection() { ui.titleScreen.classList.add('hidden'); ui.classScreen.classList.remove('hidden'); ui.backBtn.classList.remove('hidden'); initHeroSelectionObserver(); }
+        function showTutorial() { ui.titleScreen.classList.add('hidden'); ui.tutorialScreen.classList.remove('hidden'); showTutorialPage(1); }
+        function hideTutorial() { ui.tutorialScreen.classList.add('hidden'); ui.titleScreen.classList.remove('hidden'); }
 
-        function showTutorial() {
-            ui.titleScreen.classList.add('hidden');
-            ui.tutorialScreen.classList.remove('hidden');
+        let currentTutPage = 1;
+        function showTutorialPage(pageNum) {
+            document.querySelectorAll('.tut-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`tut-page-${pageNum}`).classList.add('active');
+            currentTutPage = pageNum;
         }
+        function nextTutorialPage() { if(currentTutPage < 2) showTutorialPage(currentTutPage + 1); }
+        function prevTutorialPage() { if(currentTutPage > 1) showTutorialPage(currentTutPage - 1); }
 
-        function hideTutorial() {
-            ui.tutorialScreen.classList.add('hidden');
-            ui.titleScreen.classList.remove('hidden');
-        }
+        function tryExit() { ui.exitModal.classList.remove('hidden'); }
+        function closeExitModal() { ui.exitModal.classList.add('hidden'); }
+        function confirmExit() { closeExitModal(); location.reload(); }
 
         function showBattleInfo(target) {
             const entity = target === 'player' ? player : ai;
@@ -465,7 +715,6 @@
             ui.infoTitle.style.color = `var(--${cls.color}-color)`;
             ui.infoDesc.innerText = cls.fullDesc;
             
-            // Dynamic Status Logic
             let statusText = "";
             if (entity.activeEffects.crit) statusText = "STATUS: 2x Damage Active";
             else if (entity.activeEffects.bustProtect) statusText = "STATUS: Bust Protection Active";
@@ -474,6 +723,8 @@
             else if (entity.activeEffects.intimidate) statusText = "STATUS: Intimidating";
             else if (entity.activeEffects.sixShooter) statusText = "STATUS: Fanning Hammer";
             else if (entity.activeEffects.hauntActive) statusText = "STATUS: Haunting Enemy";
+            else if (entity.activeEffects.hidden) statusText = "STATUS: Hidden (Stealth)";
+            else if (entity.activeEffects.bleeding) statusText = `STATUS: Bleeding (${entity.activeEffects.bleeding.turns} Turns)`;
             else if (entity.shield > 0) statusText = `STATUS: ${entity.shield} Armor`;
             else if (entity.classId === 'ritualist') statusText = `CHARGES: ${entity.ritualCharges}/2`;
             else statusText = entity.cdTimer > 0 ? `COOLDOWN: ${entity.cdTimer} Turns` : "READY";
@@ -482,8 +733,29 @@
             ui.skillModal.classList.remove('hidden');
         }
 
-        function closeSkillInfo() {
-            ui.skillModal.classList.add('hidden');
+        function closeSkillInfo() { ui.skillModal.classList.add('hidden'); }
+
+        // --- Hero Selection Observer ---
+        function initHeroSelectionObserver() {
+            const container = document.getElementById('class-carousel');
+            const screen = document.getElementById('class-screen');
+            const options = { root: container, threshold: 0.6 };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if(entry.isIntersecting) {
+                        const classId = entry.target.getAttribute('data-class');
+                        const colorVar = `var(--${CLASSES[classId].color}-color)`;
+                        // Create a radial gradient effect
+                        screen.style.background = `radial-gradient(circle at center, ${colorVar} 0%, #000 80%)`;
+                        // Also darken the blend to ensure text is readable
+                        screen.style.backgroundColor = '#000'; 
+                        screen.style.backgroundBlendMode = 'screen'; 
+                    }
+                });
+            }, options);
+
+            document.querySelectorAll('.class-card').forEach(card => observer.observe(card));
         }
 
         // --- Init ---
@@ -492,12 +764,11 @@
             applyClassTheme('player', classKey);
             ui.classScreen.classList.add('hidden');
             
-            let allClasses = ['knight', 'rogue', 'mage', 'brute', 'vampire', 'warrior', 'gambler', 'outlaw', 'ritualist', 'ghoul'];
+            let allClasses = ['knight', 'rogue', 'mage', 'executioner', 'brute', 'vampire', 'warrior', 'gambler', 'outlaw', 'ritualist', 'ghoul', 'ninja'];
             let enemies = allClasses.filter(c => c !== classKey).sort(() => Math.random() - 0.5);
             campaignOrder = [...enemies.slice(0, 5), 'boss'];
             
-            if(ui.debugBoss.checked) currentLevel = 5; else currentLevel = 0;
-
+            currentLevel = 0;
             showCampaignScreen();
         }
 
@@ -543,6 +814,7 @@
 
         function startBattleSetup() {
             ui.campaignScreen.classList.add('hidden');
+            ui.backBtn.classList.remove('hidden'); 
             let enemyClass = campaignOrder[currentLevel];
             resetEntity(player, CLASSES[player.classId].maxHP); 
             ai.classId = enemyClass; resetEntity(ai, CLASSES[enemyClass].maxHP);
@@ -571,63 +843,95 @@
 
         function resetEntity(entity, maxHP) {
             entity.hp = maxHP; entity.maxHP = maxHP; entity.shield = 0;
-            entity.cdTimer = 0; entity.activeEffects = { crit: false, bustProtect: false, enrage: false, absorb: false, intimidate: false, bustLimitMod: 0, sixShooter: false, hauntActive: false, haunted: false };
-            entity.maxDiceMod = 0; entity.bustLimitModPermanent = 0; entity.ritualCharges = 2;
+            entity.cdTimer = 0; 
+            entity.activeEffects = { crit: false, bustProtect: false, enrage: false, absorb: false, intimidate: false, bustLimitMod: 0, sixShooter: false, hauntActive: false, haunted: false, hidden: false, bleeding: null };
+            entity.maxDiceMod = 0; entity.bustLimitModPermanent = 0; entity.ritualCharges = 2; entity.ritualBlock = false;
             entity.score = 0; entity.diceThrown = 0; entity.diceVals = [];
         }
 
         function applyClassTheme(entity, classKey) {
             const bg = document.getElementById(entity === 'player' ? 'player-bg' : 'ai-bg');
-            let colorHex = '#111';
-            if(classKey === 'knight') colorHex = '#0a1a2a';
-            if(classKey === 'rogue') colorHex = '#2a0a0a';
-            if(classKey === 'mage') colorHex = '#1a0a2a';
-            if(classKey === 'brute') colorHex = '#0a2a0a';
-            if(classKey === 'vampire') colorHex = '#152025';
-            if(classKey === 'warrior') colorHex = '#2a0e05';
-            if(classKey === 'gambler') colorHex = '#2a001a';
-            if(classKey === 'outlaw') colorHex = '#00002a';
-            if(classKey === 'ritualist') colorHex = '#1a0a05';
-            if(classKey === 'ghoul') colorHex = '#001a1a';
-            if(classKey === 'boss') colorHex = '#2a2a00';
-            bg.style.background = `linear-gradient(${entity === 'player' ? '0deg' : '180deg'}, ${colorHex} 0%, #050505 100%)`;
+            let colorHex = '#222';
+            if(classKey === 'knight') colorHex = '#102a45'; 
+            if(classKey === 'rogue') colorHex = '#451010'; 
+            if(classKey === 'mage') colorHex = '#350a45'; 
+            if(classKey === 'executioner') colorHex = '#3b181c';
+            if(classKey === 'brute') colorHex = '#103515'; 
+            if(classKey === 'vampire') colorHex = '#253540'; 
+            if(classKey === 'warrior') colorHex = '#451e10'; 
+            if(classKey === 'gambler') colorHex = '#45002b'; 
+            if(classKey === 'outlaw') colorHex = '#0a1045'; 
+            if(classKey === 'ritualist') colorHex = '#351510'; 
+            if(classKey === 'ghoul') colorHex = '#003535'; 
+            if(classKey === 'ninja') colorHex = '#18042b';
+            if(classKey === 'boss') colorHex = '#454500'; 
+
+            bg.style.background = `linear-gradient(${entity === 'player' ? '0deg' : '180deg'}, ${colorHex} 20%, #050505 100%)`;
             
             if(entity === 'player') {
                 ui.btnSkill.innerText = `${CLASSES[classKey].skillName}`;
                 const cVar = `var(--${CLASSES[classKey].color}-color)`;
                 ui.btnSkill.style.background = cVar; ui.btnSkill.style.borderColor = cVar;
+                document.getElementById('player-name').innerText = CLASSES[classKey].name.toUpperCase();
             }
         }
 
         // --- Battle Logic ---
 
+        function clickToSkip() { if(skipResolver) skipResolver(); }
+
         async function startRollOff() {
             currentState = STATE.ROLL_OFF; isRolling = true;
-            ui.status.innerText = "ROLLING INITIATIVE..."; ui.total.innerText = "--";
+            ui.status.innerText = "ROLLING INITIATIVE..."; 
+            ui.total.innerText = "";
             ui.total.style.color = "var(--text-color)";
             ui.mainHud.className = "center-hud neutral"; 
             toggleButtons(false); clearBoard();
+            ui.opponentZone.classList.remove('ai-turn-active');
 
-            const pPromises = [ animateDieVisual(ui.pDice, player.classId), animateDieVisual(ui.pDice, player.classId), animateDieVisual(ui.pDice, player.classId) ];
-            const aiPromises = [ animateDieVisual(ui.aiDice, ai.classId), animateDieVisual(ui.aiDice, ai.classId), animateDieVisual(ui.aiDice, ai.classId) ];
-            const pResults = await Promise.all(pPromises);
-            const aiResults = await Promise.all(aiPromises);
-            const pSum = pResults.reduce((a,b)=>a+b,0);
-            const aiSum = aiResults.reduce((a,b)=>a+b,0);
+            let pSum = 0;
+            let aiSum = 0;
 
-            ui.status.innerText = `YOU: ${pSum} vs AI: ${aiSum}`;
-            await wait(1200); 
+            for(let i=0; i<3; i++) {
+                const [pVal, aiVal] = await Promise.all([
+                    animateDieVisual(ui.pDice, player.classId),
+                    animateDieVisual(ui.aiDice, ai.classId)
+                ]);
+                pSum += pVal;
+                aiSum += aiVal;
+            }
 
             if(pSum === aiSum) {
-                ui.status.innerText = "TIE! REROLLING...";
+                ui.status.innerText = `TIE! (${pSum} vs ${aiSum}) REROLLING...`;
                 ui.status.style.color = "#FFD700";
-                await wait(1000);
+                await wait(2000);
                 clearBoard();
                 ui.status.style.color = "#ccc";
                 startRollOff();
             } else {
+                let winner = pSum > aiSum ? 'player' : 'ai';
+                let winnerName = winner === 'player' ? 'YOU' : CLASSES[ai.classId].name.toUpperCase();
+                
+                ui.status.innerText = `YOU: ${pSum} vs AI: ${aiSum}`;
+                ui.total.innerText = ""; 
+                
+                const msg = document.createElement('div');
+                msg.style.marginTop = "10px";
+                msg.style.fontSize = "0.9rem";
+                msg.style.color = winner === 'player' ? "#4CAF50" : "#E53935";
+                msg.innerText = winner === 'player' ? "YOU WON, YOU GO FIRST" : `${winnerName} WON, THEY GO FIRST`;
+                ui.status.appendChild(msg);
+
+                document.addEventListener('click', clickToSkip);
+                await new Promise(r => {
+                    skipResolver = r;
+                    setTimeout(r, 3500);
+                });
+                document.removeEventListener('click', clickToSkip);
+                skipResolver = null;
+
                 clearBoard(); isRolling = false;
-                if(pSum > aiSum) startTurn('player'); else startTurn('ai');
+                startTurn(winner);
             }
         }
 
@@ -644,8 +948,16 @@
             if(checkGameOver()) return;
             let entity = who === 'player' ? player : ai;
             entity.score = 0; entity.diceThrown = 0; entity.diceVals = [];
-            if(entity.cdTimer > 0 && !entity.activeEffects.hauntActive) entity.cdTimer--; // Ghoul CD logic handled separately
             
+            // Cooldowns / Durations
+            if(entity.cdTimer > 0 && !entity.activeEffects.hauntActive) entity.cdTimer--; 
+            if(entity.activeEffects.bleeding) {
+                entity.activeEffects.bleeding.turns--;
+                if(entity.activeEffects.bleeding.turns <= 0) entity.activeEffects.bleeding = null;
+            }
+            // Reset Ritualist Block
+            if(entity.classId === 'ritualist') entity.ritualBlock = false;
+
             // Reset Buffs
             entity.activeEffects.bustProtect = false;
             entity.activeEffects.enrage = false;
@@ -661,12 +973,14 @@
                 ui.mainHud.className = "center-hud p-turn"; 
                 ui.status.innerText = "YOUR TURN"; 
                 ui.total.innerText = "0";
+                ui.opponentZone.classList.remove('ai-turn-active');
                 updateControls();
             } else {
                 currentState = STATE.AI_TURN;
                 ui.mainHud.className = "center-hud ai-turn";
                 ui.status.innerText = `${CLASSES[ai.classId].name} THINKING...`; 
                 ui.total.innerText = "0";
+                ui.opponentZone.classList.add('ai-turn-active');
                 toggleButtons(false); setTimeout(aiLogic, 1000);
             }
         }
@@ -694,8 +1008,16 @@
             entity.diceVals.push(finalVal); entity.diceThrown++; entity.score += finalVal;
             ui.total.innerText = entity.score; 
             
+            // BLEED LOGIC
+            if(entity.activeEffects.bleeding && entity.activeEffects.bleeding.stacks > 0) {
+                spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', "-1 (BLEED)", "#722F37");
+                takeDamage(entity, 1);
+                entity.activeEffects.bleeding.stacks--;
+            }
+
             let cap = cfg.bust + (entity.activeEffects.bustLimitMod || 0) + entity.bustLimitModPermanent;
-            if(entity.activeEffects.enrage || entity.activeEffects.sixShooter) cap = 16 + (entity.activeEffects.bustLimitMod || 0) + entity.bustLimitModPermanent;
+            if(entity.activeEffects.enrage) cap = 16 + (entity.activeEffects.bustLimitMod || 0) + entity.bustLimitModPermanent;
+            if(entity.activeEffects.sixShooter) cap = 18 + (entity.activeEffects.bustLimitMod || 0) + entity.bustLimitModPermanent;
             
             ui.bustLimit.innerText = `Max: ${cap}`;
             ui.total.style.color = "var(--text-color)";
@@ -704,11 +1026,18 @@
             checkDoublesHeal(entity);
             await wait(500);
             
+            if(checkGameOver()) return; // Check if bleed killed them
             await checkTurnResult(entity, container, cap, callback);
         }
 
         async function checkTurnResult(entity, container, cap, callback) {
             if(entity.score > cap) {
+                // Break Stealth on Bust
+                if(entity.activeEffects.hidden) {
+                    entity.activeEffects.hidden = false;
+                    spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', "REVEALED!", "#fff");
+                }
+
                 if(entity.activeEffects.bustProtect) {
                     spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', "BUST PREVENTED!", "#9C27B0");
                     await wait(1000);
@@ -721,7 +1050,6 @@
                     spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', "BUST!", "#FF5252");
                     ui.total.style.color = "#FF5252"; 
                     
-                    // Specific Bust Penalties
                     if(entity.classId === 'knight' && entity.shield > 0) {
                         entity.shield = 0; updateStatsUI();
                         spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', "SHIELDS BROKEN", "#FF5252");
@@ -740,7 +1068,7 @@
                         entity.activeEffects.hauntActive = false;
                         const target = entity === player ? ai : player;
                         target.activeEffects.haunted = false;
-                        entity.cdTimer = 3; // Cooldown starts now
+                        entity.cdTimer = 3; 
                         spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', "HAUNT BROKEN", "#009688");
                         updateStatsUI(); await wait(500);
                     }
@@ -753,10 +1081,12 @@
                     endTurn(entity === player ? 'player' : 'ai');
                 }
             } else {
-                // Outlaw Auto-Roll Logic
                 if(entity.activeEffects.sixShooter) {
                     const cfg = CLASSES[entity.classId];
                     let maxD = cfg.maxDice + entity.maxDiceMod;
+                    if(entity.activeEffects.haunted) maxD -= 1;
+                    if(maxD < 1) maxD = 1;
+
                     if(entity.diceThrown < maxD) {
                         await performRoll(entity, container, callback);
                         return;
@@ -819,10 +1149,10 @@
             const cfg = CLASSES[entity.classId];
             
             // Special Checks
-            if(entity.classId === 'ritualist' && entity.ritualCharges <= 0) return;
+            if(entity.classId === 'ritualist' && (entity.ritualCharges <= 0 || entity.ritualBlock)) return;
             if(entity.classId === 'ghoul' && entity.activeEffects.hauntActive) return;
 
-            // Handle Cooldowns (Ritualist has none, Ghoul starts on Bust)
+            // Handle Cooldowns (Ritualist has none but blocks, Ghoul starts on Bust)
             if(entity.classId !== 'ritualist' && entity.classId !== 'ghoul') entity.cdTimer = cfg.skillCd + 1;
             
             let msg = "SKILL USED"; let col = "#fff";
@@ -851,9 +1181,8 @@
                 entity.activeEffects.sixShooter = true;
                 msg = "SIX SHOOTER!"; col = "var(--outlaw-color)";
                 spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', msg, col);
-                ui.bustLimit.innerText = `Max: 16`;
+                ui.bustLimit.innerText = `Max: 18`;
                 await wait(500);
-                // Trigger auto roll loop
                 const container = entity === player ? ui.pDice : ui.aiDice;
                 await performRoll(entity, container, () => updateControls());
                 return;
@@ -863,6 +1192,7 @@
                 entity.maxDiceMod += 1;
                 entity.bustLimitModPermanent += 4;
                 entity.ritualCharges--;
+                entity.ritualBlock = true; // Prevents double use this turn
                 msg = "BLOOD OATH TAKEN"; col = "var(--ritualist-color)";
             }
             else if (entity.classId === 'ghoul') {
@@ -870,6 +1200,15 @@
                 const target = entity === player ? ai : player;
                 target.activeEffects.haunted = true;
                 msg = "HAUNTING ENEMY"; col = "var(--ghoul-color)";
+            }
+            else if (entity.classId === 'executioner') {
+                const target = entity === player ? ai : player;
+                target.activeEffects.bleeding = { turns: 2, stacks: 6 };
+                msg = "DEEP CUT (BLEED)"; col = "var(--executioner-color)";
+            }
+            else if (entity.classId === 'ninja') {
+                entity.activeEffects.hidden = true;
+                msg = "STEALTH MODE"; col = "var(--ninja-color)";
             }
             
             updateControls();
@@ -880,6 +1219,13 @@
         function takeDamage(entity, amount) {
             if(entity.shield > 0 && amount > 0) { amount -= 1; entity.shield -= 1; }
             entity.hp -= amount; if(entity.hp < 0) entity.hp = 0;
+            
+            // Stealth Break Logic
+            if(entity.activeEffects.hidden && amount >= 8) {
+                entity.activeEffects.hidden = false;
+                spawnFloatText(entity === player ? 'player-floats' : 'ai-floats', "REVEALED!", "#fff");
+            }
+
             updateStatsUI();
             const zone = entity === player ? document.querySelector('.player-zone') : document.querySelector('.opponent-zone');
             zone.style.transform = "translateX(5px)"; setTimeout(() => zone.style.transform = "translateX(0)", 100);
@@ -895,32 +1241,38 @@
             if(currentState !== STATE.AI_TURN) return;
             const cfg = CLASSES[ai.classId];
 
+            // AI Skill Logic
             if(ai.cdTimer === 0 && ai.classId !== 'boss') {
-                let use = false;
-                if(ai.classId === 'knight' || ai.classId === 'rogue') use = true;
-                if(ai.classId === 'mage' && ai.score >= 7) use = true;
-                if(ai.classId === 'brute' && ai.score >= 7) use = true;
-                if(ai.classId === 'vampire' && ai.hp < 25) use = true;
-                if(ai.classId === 'warrior' && ai.score > 0) use = true;
-                if(ai.classId === 'gambler' && ai.score <= 6 && ai.diceThrown < 2) use = true;
-                if(ai.classId === 'ritualist' && ai.hp > 20 && ai.ritualCharges > 0) use = true;
-                if(ai.classId === 'ghoul' && !ai.activeEffects.hauntActive) use = true;
-                if(ai.classId === 'outlaw' && ai.score < 5) use = true; 
+                // Check if Player is Hidden (Ninja)
+                if(!player.activeEffects.hidden) {
+                    let use = false;
+                    if(ai.classId === 'knight' || ai.classId === 'rogue') use = true;
+                    if(ai.classId === 'mage' && ai.score >= 7) use = true;
+                    if(ai.classId === 'brute' && ai.score >= 7) use = true;
+                    if(ai.classId === 'vampire' && ai.hp < 25) use = true;
+                    if(ai.classId === 'warrior' && ai.score > 0) use = true;
+                    if(ai.classId === 'gambler' && ai.score <= 6 && ai.diceThrown < 2) use = true;
+                    if(ai.classId === 'ritualist' && ai.hp > 20 && ai.ritualCharges > 0 && !ai.ritualBlock) use = true;
+                    if(ai.classId === 'ghoul' && !ai.activeEffects.hauntActive) use = true;
+                    if(ai.classId === 'outlaw' && ai.score < 5) use = true; 
+                    if(ai.classId === 'executioner' && !player.activeEffects.bleeding) use = true;
+                    if(ai.classId === 'ninja' && !ai.activeEffects.hidden) use = true;
 
-                if(use) { await activateSkill(ai); await wait(1000); }
+                    if(use) { await activateSkill(ai); await wait(1000); }
+                }
             }
             if(currentState !== STATE.AI_TURN) return;
 
             let cap = cfg.bust + (ai.activeEffects.bustLimitMod || 0) + ai.bustLimitModPermanent;
-            if(ai.activeEffects.enrage || ai.activeEffects.sixShooter) cap = 16 + (ai.activeEffects.bustLimitMod || 0) + ai.bustLimitModPermanent;
+            if(ai.activeEffects.enrage) cap = 16 + (ai.activeEffects.bustLimitMod || 0) + ai.bustLimitModPermanent;
+            if(ai.activeEffects.sixShooter) cap = 18 + (ai.activeEffects.bustLimitMod || 0) + ai.bustLimitModPermanent;
 
             let threshold = cap - 4; 
             if(ai.activeEffects.bustProtect) threshold = cap;
             if(ai.classId === 'boss') threshold = cap - 3;
             if(ai.activeEffects.enrage) threshold = 13;
-            if(ai.activeEffects.sixShooter) threshold = 100; // Keep rolling until bust/max
+            if(ai.activeEffects.sixShooter) threshold = 100;
 
-            // Recalc Max Dice for logic
             let maxD = cfg.maxDice + ai.maxDiceMod;
             if (ai.activeEffects.haunted) maxD -= 1;
             if (maxD < 1) maxD = 1;
@@ -955,21 +1307,40 @@
             
             // Skill Btn Logic
             let canUse = false;
-            if(player.classId === 'ritualist') canUse = player.ritualCharges > 0;
-            else if(player.classId === 'ghoul') canUse = !player.activeEffects.hauntActive && player.cdTimer <= 0;
-            else canUse = player.cdTimer <= 0;
+            // Check if AI is Hidden (Ninja)
+            if(ai.activeEffects.hidden) {
+                canUse = false;
+            } else {
+                if(player.classId === 'ritualist') canUse = player.ritualCharges > 0 && !player.ritualBlock;
+                else if(player.classId === 'ghoul') canUse = !player.activeEffects.hauntActive && player.cdTimer <= 0;
+                else canUse = player.cdTimer <= 0;
+            }
 
             if(!canUse) {
                 ui.btnSkill.disabled = true; 
-                ui.btnSkill.innerHTML = player.classId === 'ritualist' ? `${cfg.skillName} (${player.ritualCharges})` : `${cfg.skillName} <span class="cd-text">(${player.cdTimer})</span>`; 
                 ui.btnSkill.style.opacity = 0.5;
+                if (ai.activeEffects.hidden) {
+                    ui.btnSkill.innerHTML = `${cfg.skillName} (HIDDEN)`;
+                } else {
+                    ui.btnSkill.innerHTML = player.classId === 'ritualist' ? `${cfg.skillName} (${player.ritualCharges})` : `${cfg.skillName} <span class="cd-text">(${player.cdTimer})</span>`; 
+                }
             } else {
                 ui.btnSkill.disabled = false; ui.btnSkill.innerText = cfg.skillName; ui.btnSkill.style.opacity = 1;
             }
             
             let cap = cfg.bust + (player.activeEffects.bustLimitMod || 0) + player.bustLimitModPermanent;
-            if(player.activeEffects.enrage || player.activeEffects.sixShooter) cap = 16 + (player.activeEffects.bustLimitMod || 0) + player.bustLimitModPermanent;
+            if(player.activeEffects.enrage) cap = 16 + (player.activeEffects.bustLimitMod || 0) + player.bustLimitModPermanent;
+            if(player.activeEffects.sixShooter) cap = 18 + (player.activeEffects.bustLimitMod || 0) + player.bustLimitModPermanent;
             ui.bustLimit.innerText = `Max: ${cap}`;
+        }
+
+        function getStatusString(entity) {
+            let statuses = [];
+            if(entity.activeEffects.hidden) statuses.push(`<span style="color:var(--ninja-color); text-shadow:0 0 5px #aaa;">(HIDDEN)</span>`);
+            if(entity.activeEffects.bleeding) statuses.push(`<span style="color:var(--executioner-color);">(BLEEDING ${entity.activeEffects.bleeding.turns})</span>`);
+            if(entity.activeEffects.bustLimitMod < 0) statuses.push(`<span style="color:var(--warrior-color);">(INTIMIDATED)</span>`);
+            if(entity.activeEffects.haunted) statuses.push(`<span style="color:var(--ghoul-color);">(HAUNTED)</span>`);
+            return statuses.join(" ");
         }
 
         function updateStatsUI() {
@@ -977,9 +1348,12 @@
             ui.pShieldBar.style.width = (Math.min(player.shield, 30)/30)*100 + "%";
             document.getElementById('player-hp-text').innerText = `${player.hp}/${player.maxHP} ${player.shield>0 ? '('+player.shield+')' : ''}`;
             
+            ui.pStatusLine.innerHTML = getStatusString(player);
+            ui.aiStatusLine.innerHTML = getStatusString(ai);
+
             let pMax = CLASSES[player.classId].maxDice + player.maxDiceMod;
             if(player.activeEffects.haunted) pMax--;
-            ui.pDiceCount.innerText = `Dice: ${player.diceThrown}/${pMax < 1 ? 1 : pMax} ${player.activeEffects.haunted ? '(HAUNTED)' : ''}`;
+            ui.pDiceCount.innerText = `Dice: ${player.diceThrown}/${pMax < 1 ? 1 : pMax}`;
             
             ui.aiHpBar.style.width = (ai.hp/ai.maxHP)*100 + "%"; 
             ui.aiShieldBar.style.width = (Math.min(ai.shield, 30)/30)*100 + "%";
@@ -987,7 +1361,12 @@
             
             let aiMax = CLASSES[ai.classId].maxDice + ai.maxDiceMod;
             if(ai.activeEffects.haunted) aiMax--;
-            ui.aiDiceCount.innerText = `Dice: ${ai.diceThrown}/${aiMax < 1 ? 1 : aiMax} ${ai.activeEffects.haunted ? '(HAUNTED)' : ''}`;
+            ui.aiDiceCount.innerText = `Dice: ${ai.diceThrown}/${aiMax < 1 ? 1 : aiMax}`;
+
+            let aiCap = CLASSES[ai.classId].bust + (ai.activeEffects.bustLimitMod || 0) + ai.bustLimitModPermanent;
+            if(ai.activeEffects.enrage) aiCap = 16 + (ai.activeEffects.bustLimitMod || 0) + ai.bustLimitModPermanent;
+            if(ai.activeEffects.sixShooter) aiCap = 18 + (ai.activeEffects.bustLimitMod || 0) + ai.bustLimitModPermanent;
+            ui.aiBustLimit.innerText = `Max: ${aiCap}`;
         }
 
         function clearBoard() { ui.pDice.innerHTML = ''; ui.aiDice.innerHTML = ''; }
@@ -996,6 +1375,7 @@
             if(player.hp <= 0 || ai.hp <= 0) {
                 currentState = STATE.GAME_OVER;
                 ui.endScreen.classList.remove('hidden');
+                ui.backBtn.classList.add('hidden'); // Hide back button on game over
                 const title = document.getElementById('end-title');
                 const summ = document.getElementById('end-summ');
                 const btnGroup = document.getElementById('end-buttons');
